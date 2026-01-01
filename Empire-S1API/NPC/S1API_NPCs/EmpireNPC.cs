@@ -41,7 +41,7 @@ namespace Empire.NPC.S1API_NPCs
 		public abstract DebtManager? DebtManager { get; set; }
 		public RewardManager? RewardManager { get; protected set; }
 		public virtual Gift? Gift { get; protected set; }
-		public virtual Debt? Debt { get; protected set; }
+		public virtual Debt Debt { get; protected set; } = new Debt();
 
 
 		[SaveableField("DealerSaveData")]
@@ -90,7 +90,7 @@ namespace Empire.NPC.S1API_NPCs
 		// This ensures it works both on first creation AND after save/load
 		if (!DealerSaveData.IsInitialized)
 		{
-			SendTextMessage("Hi, this is just a message to let you know I'm here, and I'm watching you.  Don't screw up.  See you on the way up.");
+			//SendTextMessage("Hi, this is just a message to let you know I'm here, and I'm watching you.  Don't screw up.  See you on the way up.");
 			DealerSaveData.IsInitialized = true;
 		}
 	}

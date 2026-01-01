@@ -103,22 +103,6 @@ namespace Empire.Phone
             MelonLogger.Msg("✅ TimeManager.OnDayPass event subscribed");
         }
 
-		// No longer used
-		//private void InitializeDealers()
-		//{
-		//    try
-		//    {
-		//        //JSONDeserializer.Initialize();
-		//        //MelonLogger.Msg("✅ Dealers initialized");
-		//        Contacts.Update();
-		//        //MelonLogger.Msg($"Contacts.Buyers Count: {Contacts.Buyers.Count}");
-		//    }
-		//    catch (Exception ex)
-		//    {
-		//        MelonLogger.Error($"Failed to initialize dealers: {ex}");
-		//    }
-		//}
-
 		protected override void OnCreatedUI(GameObject container)        {
 
             var bg = UIFactory.Panel("MainBG", container.transform, Color.black, fullAnchor: true);
