@@ -37,7 +37,7 @@ namespace Empire.NPC.S1API_NPCs
 		public abstract float RepLogBase { get; protected set; }
 		public abstract List<Drug> Drugs { get; protected set; }
 		public abstract List<Shipping> Shippings { get; protected set; }
-		public new virtual Dialogue Dialogue { get; protected set; } = new Dialogue();
+		public virtual Dialogue EmpireDialogue { get; protected set; } = new Dialogue();
 		public abstract DebtManager? DebtManager { get; set; }
 		public RewardManager? RewardManager { get; protected set; }
 		public virtual Gift? Gift { get; protected set; }
@@ -402,11 +402,11 @@ namespace Empire.NPC.S1API_NPCs
 
 		private List<string>? GetDialogueLines(DialogueType type)
 		{
-			var d = Dialogue; // your buyer’s Dialogue object
+			var d = EmpireDialogue; // your buyer’s Dialogue object
 
 			if (d == null)
 			{
-				MelonLogger.Msg($"❌ Dialogue is null for dealer {DisplayName}.");
+				MelonLogger.Msg($"❌ EmpireDialogue is null for dealer {DisplayName}.");
 				return null;
 			}
 

@@ -899,7 +899,7 @@ namespace Empire.Phone
 			string effectDesc = BuildEffectDescription(necessary, optional);
 
 			// --- Dialogue index ------------------------------------------------------
-			int dialogueIndex = RandomUtils.RangeInt(0, buyer.Dialogue.DealStart.Count);
+			int dialogueIndex = RandomUtils.RangeInt(0, buyer.EmpireDialogue.DealStart.Count);
 
 			// --- Create quest --------------------------------------------------------
 			var quest = new QuestData

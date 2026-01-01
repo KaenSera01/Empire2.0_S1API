@@ -100,7 +100,7 @@ namespace Empire.NPC.S1API_NPCs
 				}
 			};
 
-		public override Dialogue Dialogue { get; protected set; } =
+		public override Dialogue EmpireDialogue { get; protected set; } =
 			new Dialogue
 			{
 				Intro = new List<string>
