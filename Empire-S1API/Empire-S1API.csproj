@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <!-- Imports any local build properties over the GitHub repository one. -->
-    <Import Project="../local.build.props" Condition="Exists('../local.build.props')" />
+    <!--<Import Project="../local.build.props" Condition="Exists('../local.build.props')" />-->
+	<Import Project="$(SolutionDir)local.build.props" Condition="Exists('$(SolutionDir)local.build.props')" />
 
     <!-- General properties -->
     <PropertyGroup>
@@ -30,7 +31,7 @@
 		<AssemblyName>Empire-S1API</AssemblyName>
 		<!-- CrossCompat uses Mono assemblies but without Assembly-CSharp for cross-compatibility -->
 		<!-- Uses properties from local.build.props, but MelonLoader path may need to be net35 instead of net6 -->
-		<CrossCompatMelonLoaderPath Condition="'$(CrossCompatMelonLoaderPath)'==''">$(LocalMonoDeploymentPath)\MelonLoader\net35</CrossCompatMelonLoaderPath>
+		<CrossCompatMelonLoaderPath Condition="'$(CrossCompatMelonLoaderPath)'==''">$(LocalMonoDeploymentPath)\MelonLoader\net6</CrossCompatMelonLoaderPath>
 	</PropertyGroup>
 	
     <!-- IL2CPP Specific Deps -->
@@ -165,7 +166,7 @@
 
     <!-- S1API.Forked: Use NuGet package when not using local assembly -->
     <ItemGroup Condition="'$(UseLocalS1APIForked)' != 'true'">
-       <PackageReference Include="S1API.Forked" Version="2.8.9" />
+       <PackageReference Include="S1API.Forked" Version="2.9.0" />
     </ItemGroup>
 
     <!-- S1API.Forked: Use local assembly reference when enabled -->
@@ -184,5 +185,6 @@
 	
 	<Target Name="PostBuild" AfterTargets="Build">
 		<Copy SourceFiles="$(TargetDir)Empire-S1API.dll" DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Schedule I_MONO\Mods\" />
+		<Copy SourceFiles="$(TargetDir)Empire-S1API.dll" DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Schedule I_Main_IL2CPP\Mods\" />
 	</Target>
 </Project>
