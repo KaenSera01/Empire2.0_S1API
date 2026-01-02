@@ -160,10 +160,12 @@ namespace Empire.NPC
                             buyer.IsUnlocked = true;
                             MelonLogger.Msg($"✅ Dealer {buyer.DisplayName} is now unlocked.");
 
-                            if (buyer.Debt?.TotalDebt > 0)
+							MelonLogger.Msg($"Buyer Debt Info: Debt is null: {buyer.Debt == null}, buyer.Debt.TotalDebt: {buyer.Debt?.TotalDebt}, DealerSaveData.DebtRemaining: {buyer.DealerSaveData.DebtRemaining}");
+							if (buyer.Debt?.TotalDebt > 0 && !buyer.DealerSaveData.DebtInitialized)
                             {
                                 buyer.DealerSaveData.DebtRemaining = buyer.Debt.TotalDebt;
                                 buyer.DealerSaveData.DebtPaidThisWeek = 0;
+                                buyer.DealerSaveData.DebtInitialized = true;
 								MelonLogger.Msg($"💰 Dealer {buyer.DisplayName} has existing debt: {buyer.Debt.TotalDebt}");
                             }
                         }

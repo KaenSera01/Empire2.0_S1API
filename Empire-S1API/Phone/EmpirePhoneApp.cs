@@ -404,7 +404,7 @@ namespace Empire.Phone
                                 b.UnlockRequirements != null &&
                                 b.UnlockRequirements.Any(r => r.Name == selectedBuyer.DisplayName && r.MinRep > selectedBuyer.DealerSaveData.Reputation))
                     .ToList();
-                
+
                 if (pendingBuyers.Count > 0)
                 {
                     content += "\n\n<b>Pending Unlocks:</b>\n";
@@ -415,7 +415,9 @@ namespace Empire.Phone
                     }
                 }
 
-                UIFactory.Text("DetailText", content, managementDetailPanel.transform, 18);
+				content += $"\n\n<b>Deliver after curfew only:</b> {(selectedBuyer.CurfewDeal ? "Yes" : "No")}\n";
+
+				UIFactory.Text("DetailText", content, managementDetailPanel.transform, 18);
             }
             else if (tab == "Product")
             {
