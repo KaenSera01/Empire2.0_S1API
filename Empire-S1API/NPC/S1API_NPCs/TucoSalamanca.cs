@@ -205,7 +205,7 @@ namespace Empire.NPC.S1API_NPCs
 				Rep = 60
 			};
 
-		public override Debt? Debt { get; protected set; } =
+		public override Debt Debt { get; protected set; } =
 			new Debt
 			{
 				TotalDebt = 250000,

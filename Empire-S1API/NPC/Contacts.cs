@@ -140,7 +140,9 @@ namespace Empire.NPC
             
             foreach (var buyer in Buyers.Values)
             {
-                try
+                MelonLogger.Msg("Buyer type: " + buyer.GetType().Name);
+
+				try
                 {
                     bool canUnlock = buyer.UnlockRequirements == null ||
                                      !buyer.UnlockRequirements.Any() ||
@@ -157,6 +159,13 @@ namespace Empire.NPC
                         {
                             buyer.IsUnlocked = true;
                             MelonLogger.Msg($"✅ Dealer {buyer.DisplayName} is now unlocked.");
+
+                            if (buyer.Debt?.TotalDebt > 0)
+                            {
+                                buyer.DealerSaveData.DebtRemaining = buyer.Debt.TotalDebt;
+                                buyer.DealerSaveData.DebtPaidThisWeek = 0;
+								MelonLogger.Msg($"💰 Dealer {buyer.DisplayName} has existing debt: {buyer.Debt.TotalDebt}");
+                            }
                         }
 
                         if (buyer.Debt != null && buyer.Debt.TotalDebt > 0 && buyer.DealerSaveData.DebtRemaining > 0)
