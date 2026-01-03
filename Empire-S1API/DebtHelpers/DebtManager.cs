@@ -33,7 +33,7 @@ namespace Empire.DebtHelpers
                 //set paidthisweek to false at the start of each week
                 TimeManager.OnWeekPass += SetPayThisWeek;
             }
-            if (!buyer.DealerSaveData.DebtInitialized)
+            if (buyer.Debt.TotalDebt == buyer.DealerSaveData.DebtRemaining)
                 SendDebtMessage(0,"initial"); // Send the initial debt message
 
             CheckIfPaidThisWeek();

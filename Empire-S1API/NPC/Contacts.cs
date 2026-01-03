@@ -144,10 +144,11 @@ namespace Empire.NPC
 
 				try
                 {
-                    bool canUnlock = buyer.UnlockRequirements == null ||
+                    bool canUnlock = !buyer.IsUnlocked &&
+                                     (buyer.UnlockRequirements == null ||
                                      !buyer.UnlockRequirements.Any() ||
                                      buyer.UnlockRequirements.All(req =>
-                                         GetBuyer(req.Name)?.DealerSaveData.Reputation >= req.MinRep);
+                                         GetBuyer(req.Name)?.DealerSaveData.Reputation >= req.MinRep));
 
                     MelonLogger.Msg($"Buyer: {buyer.DisplayName}, CanUnlock: {canUnlock}");
 

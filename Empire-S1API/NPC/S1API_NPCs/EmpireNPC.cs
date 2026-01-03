@@ -83,6 +83,7 @@ namespace Empire.NPC.S1API_NPCs
 		OnEmpireCreated();
 		MelonLogger.Msg($"🆕 Created Empire NPC: {DisplayName} (ID: {DealerId})");
 
+		RewardManager = new RewardManager(this);
 		Contacts.RegisterEmpireNPC(this);
 		MelonLogger.Msg($"Registered Empire NPC '{DisplayName}' with Contacts.");
 		
