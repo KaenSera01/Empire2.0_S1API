@@ -227,7 +227,10 @@ namespace Empire.NPC
                 yield return null;
             }
             MelonLogger.Msg("✅ S1API CustomNpcsReady - Now sending intro messages...");
-            
+
+            // Refresh messaging icons for all Empire NPCs after a delay
+            MelonCoroutines.Start(RefreshAllMessagingIconsDelayed());
+
             try
             {
                 foreach (var buyer in Buyers.Values)
@@ -257,6 +260,36 @@ namespace Empire.NPC
                 _isUpdateCoroutineRunning = false;
                 MelonLogger.Msg("📨 SendIntroMessagesCoroutine completed.");
             }
+        }
+
+        /// <summary>
+        /// Refreshes messaging icons for all Empire NPCs after a short delay.
+        /// This ensures custom icons are applied after S1API finishes its setup.
+        /// </summary>
+        private static System.Collections.IEnumerator RefreshAllMessagingIconsDelayed()
+        {
+            yield return new UnityEngine.WaitForSeconds(5f);
+
+            MelonLogger.Msg("Refreshing messaging icons for all Empire NPCs...");
+
+            foreach (var buyer in Buyers.Values)
+            {
+                try
+                {
+                    var sprite = buyer.GetNPCSprite();
+                    if (sprite != null)
+                    {
+                        buyer.Icon = sprite;
+                        buyer.RefreshMessagingIcons();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MelonLogger.Warning($"Failed to refresh icon for {buyer.DisplayName}: {ex.Message}");
+                }
+            }
+
+            MelonLogger.Msg("Messaging icons refresh complete.");
         }
     }
 }

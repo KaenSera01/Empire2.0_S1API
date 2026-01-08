@@ -277,6 +277,41 @@ namespace Empire.NPC.S1API_NPCs
 		}
 
 		/// <summary>
+		/// Override SendTextMessage to ensure our custom icon is applied before sending.
+		/// This works around a known S1API issue where mugshots may not display correctly.
+		/// </summary>
+		public void SendTextMessage(string message)
+		{
+			// Ensure our custom icon is set before sending
+			var sprite = GetNPCSprite();
+			if (sprite != null)
+			{
+				Icon = sprite;
+			}
+
+			// Send the message using the base implementation
+			base.SendTextMessage(message);
+
+			// Refresh messaging icons after a short delay to ensure UI is fully created
+			// This is especially important for the first message sent (e.g., Combo Costco)
+			MelonCoroutines.Start(RefreshIconAfterDelay());
+		}
+
+		private System.Collections.IEnumerator RefreshIconAfterDelay()
+		{
+			// Wait a frame for the messaging UI to be fully created
+			yield return null;
+
+			// Set icon and refresh
+			var sprite = GetNPCSprite();
+			if (sprite != null)
+			{
+				Icon = sprite;
+				RefreshMessagingIcons();
+			}
+		}
+
+		/// <summary>
 		/// Safely sends a text message with validation to prevent empty/null messages.
 		/// </summary>
 		/// <param name="message">The message to send</param>
