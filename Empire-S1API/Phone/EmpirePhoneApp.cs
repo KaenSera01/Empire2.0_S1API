@@ -18,6 +18,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
+using Empire.Utilities.DealDayHelpers;
 
 namespace Empire.Phone
 {
@@ -66,7 +67,17 @@ namespace Empire.Phone
         private GameObject messageContainer;
         private S1API.Quests.Quest? q;
 
-        public static void Reset()
+		private static readonly Dictionary<int, MelonPreferences_Entry<int>> TierMinDaysMap =
+	        new Dictionary<int, MelonPreferences_Entry<int>>
+        {
+			        { 1, EmpireMod.Tier1MinDays },
+			        { 2, EmpireMod.Tier2MinDays },
+			        { 3, EmpireMod.Tier3MinDays },
+			        { 4, EmpireMod.Tier4MinDays },
+			        { 5, EmpireMod.Tier5MinDays }
+        };
+
+		public static void Reset()
         {
             if (QuestDelivery.QuestActive && QuestDelivery.Active != null)
             {
@@ -100,8 +111,69 @@ namespace Empire.Phone
             Reset();
             TimeManager.OnDayPass -= LoadQuests;
             TimeManager.OnDayPass += LoadQuests;
+
             MelonLogger.Msg("✅ TimeManager.OnDayPass event subscribed");
         }
+
+		public static void DetermineDealDaysStatic()
+		{
+			Instance?.DetermineDealDays();
+		}
+
+		public static void DetermineDealDaysStatic(EmpireNPC buyer)
+		{
+			Instance?.DetermineDealDays(buyer);
+		}
+
+		public void DetermineDealDays(EmpireNPC buyer)
+        {
+            if (EmpireMod.RandomizeDealDays.Value == true)
+            {
+                MelonLogger.Msg($"[EmpirePhoneApp] Determining deal days for buyer {buyer.DisplayName}.");
+                int minDays = GetConfiguredMinDealDays(buyer.Tier);
+                int maxDays = minDays + 2;
+				int randomDays = UnityEngine.Random.Range(minDays, maxDays + 1);    //  +1 to make sure you can get maxDays in the result
+				int numDaysToAssign = Math.Clamp(randomDays, 1, 7);
+
+				buyer.ActiveDealDays = DealDayUtility.GetRandomDays(numDaysToAssign);
+				MelonLogger.Msg($"[EmpirePhoneApp] Buyer {buyer.DisplayName} (Tier {buyer.Tier}) assigned {numDaysToAssign} deal days: {string.Join(", ", buyer.ActiveDealDays)}");
+			}
+            else
+            {
+                MelonLogger.Msg($"[EmpirePhoneApp] Using default deal days for buyer {buyer.DisplayName}.");
+                buyer.ActiveDealDays = new List<string>(buyer.DefaultDealDays);
+                MelonLogger.Msg($"[EmpirePhoneApp] Buyer {buyer.DisplayName} (Tier {buyer.Tier}) assigned default deal days: {string.Join(", ", buyer.ActiveDealDays)}");
+			}
+        }
+
+		public void DetermineDealDays()
+        {
+            if (TimeManager.CurrentDay != 0)
+            {
+                MelonLogger.Msg("[EmpirePhoneApp] Skipping deal day determination - not Monday.");
+                return;
+            }
+
+            foreach (var buyer in Contacts.Buyers.Values)
+            {
+                if (buyer == null || !buyer.IsUnlocked)
+                    continue;
+
+                DetermineDealDays(buyer);
+            }
+		}
+
+		private int GetConfiguredMinDealDays(int buyerTier)
+		{
+			MelonPreferences_Entry<int> entry;
+
+			if (TierMinDaysMap.TryGetValue(buyerTier, out entry))
+				return entry.Value;
+
+			// Unknown tiers default to 1 day
+            MelonLogger.Msg($"[EmpirePhoneApp] Unknown buyer tier {buyerTier} - defaulting to 1 min deal day.");
+			return 1;
+		}
 
 		protected override void OnCreatedUI(GameObject container)        {
 
@@ -393,9 +465,9 @@ namespace Empire.Phone
                     icon.GetComponent<RectTransform>().sizeDelta = new Vector2(127, 127);
                 content = $"<b>Reputation:</b> {selectedBuyer.DealerSaveData.Reputation}";
                 
-                if (selectedBuyer.DealDays != null && selectedBuyer.DealDays.Count > 0)
+                if (selectedBuyer.ActiveDealDays != null && selectedBuyer.ActiveDealDays.Count > 0)
                 {
-                    string daysStr = string.Join(", ", selectedBuyer.DealDays);
+                    string daysStr = string.Join(", ", selectedBuyer.ActiveDealDays);
                     content += $"\n\n<b><color=#FFA500>Deal Days:</color></b> <color=#FFFFFF>{daysStr}</color>";
                 }
                 
@@ -758,7 +830,7 @@ namespace Empire.Phone
             {
                 string currentDay = TimeManager.CurrentDay.ToString();
                 MelonLogger.Msg($"RefreshButton(): Current Day: {currentDay}.");
-                if (buyer.DealDays != null && buyer.DealDays.Contains(currentDay) && buyer.IsUnlocked)
+                if (buyer.ActiveDealDays != null && buyer.ActiveDealDays.Contains(currentDay) && buyer.IsUnlocked)
                 {
                     refreshCost += buyer.RefreshCost;
                 }
@@ -793,13 +865,13 @@ namespace Empire.Phone
                 // Skip buyers that aren't unlocked yet (unlock requirements not met)
                 if (!buyer.IsUnlocked)
                 {
-                    MelonLogger.Msg($"Skipping dealer {buyer.DisplayName}: Not unlocked yet (unlock requirements not met).");
+                    //MelonLogger.Msg($"Skipping dealer {buyer.DisplayName}: Not unlocked yet (unlock requirements not met).");
                     continue;
                 }
                 
-				if (buyer.DealDays == null || !buyer.DealDays.Contains(currentDay) || !buyer.IsInitialized)
+				if (buyer.ActiveDealDays == null || !buyer.ActiveDealDays.Contains(currentDay) || !buyer.IsInitialized)
                 {
-                    MelonLogger.Msg($"Skipping dealer {buyer.DisplayName}: DealDays not set or does not include {currentDay}, or dealer not initialized: IsInitialized -> {buyer.IsInitialized}.");
+                    //MelonLogger.Msg($"Skipping dealer {buyer.DisplayName}: DefaultDealDays not set or does not include {currentDay}, or dealer not initialized: IsInitialized -> {buyer.IsInitialized}.");
 					continue;
                 }
 

@@ -325,10 +325,10 @@ namespace Empire.Quest
                     props = meth.GetProperties();
                 else if (productDef is CocaineDefinition coke)
                     props = coke.GetProperties();
-				//else if (productDef is ShroomDefinition shroom)   //  not implemented yet
-				//    props = shroom.GetProperties();
+                else if (productDef is ShroomDefinition shroom)
+                    props = shroom.GetProperties();
 
-				MelonLogger.Msg($"count : {props.Count}");
+                MelonLogger.Msg($"count : {props.Count}");
                 var properties = new List<string>();
                 if (props.Count > 0)
                 {
@@ -403,8 +403,6 @@ namespace Empire.Quest
             }
         }
 
-        //A method that checks class type of a product definition. If it WeedDefinition, return weed string, MethDefinition return meth string, CocaineDefinition return cocaine string, else return null.
-        //TODO - UPDATABLE
         private string? GetProductType(ProductDefinition? productDef)
         {
             if (productDef is WeedDefinition)
@@ -419,11 +417,11 @@ namespace Empire.Quest
             {
                 return "cocaine";
             }
-   //         else if (productDef is ShroomDefinition)  //  not implemented yet
-   //         {
-   //             return "shroom";
-			//}
-			else
+            else if (productDef is ShroomDefinition)  //  not implemented yet
+            {
+                return "shrooms";
+            }
+            else
             {
                 return null;
             }

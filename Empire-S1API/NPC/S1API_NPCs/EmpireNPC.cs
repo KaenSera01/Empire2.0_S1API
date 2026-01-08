@@ -22,6 +22,7 @@ namespace Empire.NPC.S1API_NPCs
         public override bool IsPhysical => false;
 		public virtual bool IsInitialized { get; set; } = false;
 		public virtual bool IsUnlocked { get; set; } = false;
+		public virtual bool IsCustomNPC { get; } = false;   //	to differentiate between built-in and a player's JSON-added dealers
 		public abstract string DealerId { get; }
 		public new abstract string FirstName { get;		 }
 		public new abstract string LastName { get; }
@@ -29,7 +30,8 @@ namespace Empire.NPC.S1API_NPCs
 		public virtual string Image => $"{DealerId}.png";
 		public abstract int Tier { get; }
 		public abstract List<UnlockRequirement> UnlockRequirements { get; protected set; }
-		public abstract List<string> DealDays { get; protected set; }
+		public abstract List<string> DefaultDealDays { get; protected set; }
+		public abstract List<string> ActiveDealDays { get; set; }
 		public abstract bool CurfewDeal { get; protected set; }
 		public abstract List<List<float>> Deals { get; protected set; } //	Each inner list: { dealTime, dealTimeMultipler, dollarPenalty, RepPenalty }
 		public abstract int RefreshCost { get; protected set; }
@@ -289,6 +291,8 @@ namespace Empire.NPC.S1API_NPCs
 				return;
 			}
 			SendTextMessage(message);
+
+			MelonCoroutines.Start(RefreshIconAfterDelay());
 		}
 
 		public string GetDrugUnlockInfo()
@@ -425,6 +429,20 @@ namespace Empire.NPC.S1API_NPCs
 				DialogueType.Reward => d.Reward,
 				_ => null
 			};
+		}
+
+		private System.Collections.IEnumerator RefreshIconAfterDelay()
+		{
+			// Wait a frame for the messaging UI to be fully created
+			yield return null;
+
+			// Set icon and refresh
+			var sprite = GetNPCSprite();
+			if (sprite != null)
+			{
+				Icon = sprite;
+				RefreshMessagingIcons();
+			}
 		}
 	}
 }

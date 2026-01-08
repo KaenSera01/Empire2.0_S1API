@@ -24,7 +24,10 @@ namespace Empire.NPC.S1API_NPCs
 				}
 			};
 
-		public override List<string> DealDays { get; protected set; } =
+		public override List<string> DefaultDealDays { get; protected set; } =
+			new List<string> { "Monday", "Wednesday", "Friday", "Saturday" };
+
+		public override List<string> ActiveDealDays { get; set; } =
 			new List<string> { "Monday", "Wednesday", "Friday", "Saturday" };
 
 		public override bool CurfewDeal { get; protected set; } = false;

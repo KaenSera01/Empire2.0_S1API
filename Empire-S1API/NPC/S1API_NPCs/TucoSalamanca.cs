@@ -19,7 +19,10 @@ namespace Empire.NPC.S1API_NPCs
 				new UnlockRequirement { Name = "Hector Salamanca", MinRep = 777 }
 			};
 
-		public override List<string> DealDays { get; protected set; } =
+		public override List<string> DefaultDealDays { get; protected set; } =
+			new List<string> { "Tuesday", "Friday", "Sunday" };
+
+		public override List<string> ActiveDealDays { get; set; } =
 			new List<string> { "Tuesday", "Friday", "Sunday" };
 
 		public override bool CurfewDeal { get; protected set; } = true;

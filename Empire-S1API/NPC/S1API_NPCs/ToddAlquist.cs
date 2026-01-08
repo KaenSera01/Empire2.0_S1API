@@ -18,7 +18,10 @@ namespace Empire.NPC.S1API_NPCs
 				new UnlockRequirement { Name = "Mr. Badger", MinRep = 100 }
 			};
 
-		public override List<string> DealDays { get; protected set; } =
+		public override List<string> DefaultDealDays { get; protected set; } =
+			new List<string> { "Monday", "Tuesday", "Thursday", "Sunday" };
+
+		public override List<string> ActiveDealDays { get; set; } =
 			new List<string> { "Monday", "Tuesday", "Thursday", "Sunday" };
 
 		public override bool CurfewDeal { get; protected set; } = true;

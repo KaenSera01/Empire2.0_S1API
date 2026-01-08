@@ -20,7 +20,10 @@ namespace Empire.NPC.S1API_NPCs
 				new UnlockRequirement { Name = "Jesse Pinkman", MinRep = 1313 }
 			};
 
-		public override List<string> DealDays { get; protected set; } =
+		public override List<string> DefaultDealDays { get; protected set; } =
+			new List<string> { "Monday", "Wednesday" };
+
+		public override List<string> ActiveDealDays { get; set; } =
 			new List<string> { "Monday", "Wednesday" };
 
 		public override bool CurfewDeal { get; protected set; } = true;

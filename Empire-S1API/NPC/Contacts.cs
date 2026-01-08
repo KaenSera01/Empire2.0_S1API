@@ -1,6 +1,7 @@
 ﻿using Empire.DebtHelpers;
 using Empire.NPC.Data.Enums;
 using Empire.NPC.S1API_NPCs;
+using Empire.Phone;
 using MelonLoader;
 using System;
 using System.Collections.Generic;
@@ -74,6 +75,8 @@ namespace Empire.NPC
 					MelonLogger.Msg($"🎉 All Empire NPCs registered ({Buyers.Count}/{AllEmpireNPCs.Count}). Initialization complete.");
 					Contacts.Update();
 					MelonLogger.Msg("🔄 Contacts Update called after all NPCs registered.");
+                    EmpirePhoneApp.DetermineDealDaysStatic();
+                    MelonLogger.Msg("📱 EmpirePhoneApp.DetermineDealDaysStatic() called.");
 				}
 			}
             else
@@ -169,7 +172,9 @@ namespace Empire.NPC
                                 buyer.DealerSaveData.DebtInitialized = true;
 								MelonLogger.Msg($"💰 Dealer {buyer.DisplayName} has existing debt: {buyer.Debt.TotalDebt}");
                             }
-                        }
+
+                            EmpirePhoneApp.DetermineDealDaysStatic(buyer);
+						}
 
                         if (buyer.Debt != null && buyer.Debt.TotalDebt > 0 && buyer.DealerSaveData.DebtRemaining > 0)
                         {
@@ -227,8 +232,10 @@ namespace Empire.NPC
                 yield return null;
             }
             MelonLogger.Msg("✅ S1API CustomNpcsReady - Now sending intro messages...");
-            
-            try
+
+			MelonCoroutines.Start(RefreshAllMessagingIconsDelayed());
+
+			try
             {
                 foreach (var buyer in Buyers.Values)
                 {
@@ -258,5 +265,31 @@ namespace Empire.NPC
                 MelonLogger.Msg("📨 SendIntroMessagesCoroutine completed.");
             }
         }
-    }
+
+		private static System.Collections.IEnumerator RefreshAllMessagingIconsDelayed()
+		{
+			yield return new UnityEngine.WaitForSeconds(5f);
+
+			MelonLogger.Msg("Refreshing messaging icons for all Empire NPCs...");
+
+			foreach (var buyer in Buyers.Values)
+			{
+				try
+				{
+					var sprite = buyer.GetNPCSprite();
+					if (sprite != null)
+					{
+						buyer.Icon = sprite;
+						buyer.RefreshMessagingIcons();
+					}
+				}
+				catch (Exception ex)
+				{
+					MelonLogger.Warning($"Failed to refresh icon for {buyer.DisplayName}: {ex.Message}");
+				}
+			}
+
+			MelonLogger.Msg("Messaging icons refresh complete.");
+		}
+	}
 }

@@ -36,7 +36,7 @@
 //        public string DealerName { get; private set; }
 //        public string? DealerImage { get; private set; }
 //        public int Tier { get; set; }
-//        public List<string> DealDays { get; set; }
+//        public List<string> DefaultDealDays { get; set; }
 //        public DebtManager DebtManager { get; set; } // Initialize DebtManager object
 //        public bool CurfewDeal { get; set; } = false;
 //        public int RefreshCost { get; set; }
@@ -116,7 +116,7 @@
 //            Drugs = currentDealer.Drugs ?? new List<Drug>();
 //            Shippings = currentDealer.Shippings ?? new List<Shipping>();
 //            Deals = currentDealer.Deals ?? new List<List<float>>();
-//            DealDays = currentDealer.DealDays ?? new List<string>();
+//            DefaultDealDays = currentDealer.DefaultDealDays ?? new List<string>();
 //            RepLogBase = currentDealer.RepLogBase;
 //            CurfewDeal = currentDealer.CurfewDeal;
 //            Tier = currentDealer.Tier;

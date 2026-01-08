@@ -10,7 +10,7 @@
 //        public string? Image { get; set; }
 //        public int Tier { get; set; }
 //        public List<UnlockRequirement> UnlockRequirements { get; set; }
-//        public List<string> DealDays { get; set; }
+//        public List<string> DefaultDealDays { get; set; }
 //        public bool CurfewDeal { get; set; }
 //        public List<List<float>> Deals { get; set; }
 //        public int RefreshCost { get; set; }

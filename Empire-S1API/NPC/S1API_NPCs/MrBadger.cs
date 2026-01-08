@@ -15,7 +15,10 @@ namespace Empire.NPC.S1API_NPCs
 		public override List<UnlockRequirement> UnlockRequirements { get; protected set; } =
 			new List<UnlockRequirement>(); // Starts unlocked
 
-		public override List<string> DealDays { get; protected set; } =
+		public override List<string> DefaultDealDays { get; protected set; } =
+			new List<string> { "Sunday", "Monday", "Thursday", "Friday" };
+
+		public override List<string> ActiveDealDays { get; set; } =
 			new List<string> { "Sunday", "Monday", "Thursday", "Friday" };
 
 		public override bool CurfewDeal { get; protected set; } = false;
@@ -65,6 +68,28 @@ namespace Empire.NPC.S1API_NPCs
 						new Effect { Name = "Focused",    UnlockRep = 38,  Probability = 1.0f, DollarMult = 0f },
 						new Effect { Name = "Random",     UnlockRep = 80,  Probability = 0.3f, DollarMult = 0f },
 						new Effect { Name = "Random",     UnlockRep = 105, Probability = 0.6f, DollarMult = 0f }
+					}
+				},
+				new Drug
+				{
+					Type = "shrooms",
+					UnlockRep = 75,
+					BaseDollar = 14,
+					BaseRep = 14,
+					BaseXp = 9,
+					RepMult = 0.001f,
+					XpMult = 0.001f,
+					Qualities = new List<Quality>
+					{
+						new Quality { Type = "poor", DollarMult = 0f, UnlockRep = 75 },
+						new Quality { Type = "standard",  DollarMult = 0f, UnlockRep = 150 }
+					},
+					Effects = new List<Effect>
+					{
+						new Effect { Name = "Paranoia",   UnlockRep = 75,   Probability = 2.0f, DollarMult = 0f },
+						new Effect { Name = "Random",     UnlockRep = 95,   Probability = 1.0f, DollarMult = 0f },
+						new Effect { Name = "Random",     UnlockRep = 150,  Probability = 0.3f, DollarMult = 0f },
+						new Effect { Name = "Random",     UnlockRep = 200,  Probability = 0.6f, DollarMult = 0f }
 					}
 				}
 			};

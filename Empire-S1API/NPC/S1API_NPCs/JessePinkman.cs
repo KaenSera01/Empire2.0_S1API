@@ -21,7 +21,10 @@ namespace Empire.NPC.S1API_NPCs
 				new UnlockRequirement { Name = "Combo Costco",                MinRep = 200 }
 			};
 
-		public override List<string> DealDays { get; protected set; } =
+		public override List<string> DefaultDealDays { get; protected set; } =
+			new List<string> { "Tuesday", "Thursday", "Friday" };
+
+		public override List<string> ActiveDealDays { get; set; } =
 			new List<string> { "Tuesday", "Thursday", "Friday" };
 
 		public override bool CurfewDeal { get; protected set; } = true;

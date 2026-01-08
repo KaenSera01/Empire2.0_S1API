@@ -166,7 +166,7 @@
 
     <!-- S1API.Forked: Use NuGet package when not using local assembly -->
     <ItemGroup Condition="'$(UseLocalS1APIForked)' != 'true'">
-       <PackageReference Include="S1API.Forked" Version="2.9.0" />
+       <PackageReference Include="S1API.Forked" Version="2.9.2" />
     </ItemGroup>
 
     <!-- S1API.Forked: Use local assembly reference when enabled -->
