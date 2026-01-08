@@ -85,8 +85,8 @@ namespace Empire.NPC.S1API_NPCs
 					},
 					Effects = new List<Effect>
 					{
-						new Effect { Name = "Energizing",   UnlockRep = 110,   Probability = 2.0f, DollarMult = 0f },
-						new Effect { Name = "Euphoric",     UnlockRep = 150,   Probability = 1.0f, DollarMult = 0f },
+						new Effect { Name = "Sedating",   UnlockRep = 110,   Probability = 2.0f, DollarMult = 0f },
+						new Effect { Name = "LongFaced",  UnlockRep = 150,   Probability = 1.0f, DollarMult = 0f },
 						new Effect { Name = "Random",     UnlockRep = 180,  Probability = 0.3f, DollarMult = 0f },
 						new Effect { Name = "Random",     UnlockRep = 225,  Probability = 0.6f, DollarMult = 0f }
 					}
