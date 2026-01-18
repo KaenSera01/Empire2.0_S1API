@@ -1,14 +1,11 @@
-﻿using Empire.NPC;
-using Empire.NPC.Data;
+﻿using Empire.NPC.Data;
 using Empire.NPC.S1API_NPCs;
 using Empire.Utilities.ListHelpers;
 using Empire.Utilities.QualityHelpers;
-using Empire_S1API.Utilities;
-using S1API.Internal.Utils;
+using S1API.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Empire.Utilities.QuestHelpers
 { 
@@ -70,7 +67,7 @@ namespace Empire.Utilities.QuestHelpers
 			float temp11 = 1f;
 			float temp21 = 1f;
 
-			bool noNecessary = EmpireConfig.NoNecessaryEffects;
+			bool noNecessary = EmpireMod.DisableNecessaryEffects.Value;
 
 			foreach (var e in unlockedDrug.Effects)
 			{

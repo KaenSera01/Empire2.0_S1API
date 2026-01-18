@@ -54,7 +54,7 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "cocaine",
 					UnlockRep = 0,
-					BaseDollar = 75,
+					BaseDollar = 110,
 					BaseRep = 181,
 					BaseXp = 153,
 					RepMult = 0.001f,
@@ -62,8 +62,8 @@ namespace Empire.NPC.S1API_NPCs
 
 					Qualities = new List<Quality>
 					{
-						new Quality { Type = "poor",     DollarMult = 0f, UnlockRep = 0 },
-						new Quality { Type = "standard", DollarMult = 0f, UnlockRep = 250 }
+						new Quality { Type = "poor", UnlockRep = 0 },
+						new Quality { Type = "standard", UnlockRep = 250 }
 					},
 
 					Effects = new List<Effect>
@@ -81,7 +81,7 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "meth",
 					UnlockRep = 1140,
-					BaseDollar = 40,
+					BaseDollar = 64,
 					BaseRep = 168,
 					BaseXp = 161,
 					RepMult = 0.002f,
@@ -89,17 +89,17 @@ namespace Empire.NPC.S1API_NPCs
 
 					Qualities = new List<Quality>
 					{
-						new Quality { Type = "poor",     DollarMult = 0f, UnlockRep = 1140 },
-						new Quality { Type = "standard", DollarMult = 0f, UnlockRep = 1820 }
+						new Quality { Type = "poor", UnlockRep = 1140 },
+						new Quality { Type = "standard", UnlockRep = 1820 }
 					},
 
 					Effects = new List<Effect>
 					{
 						new Effect { Name = "Toxic",       UnlockRep = 1140, Probability = 2.0f, DollarMult = 0f },
 						new Effect { Name = "Random",      UnlockRep = 1820, Probability = 1.2f, DollarMult = 0f },
-						new Effect { Name = "Energizing",  UnlockRep = 0,    Probability = 1.0f, DollarMult = 0f },
-						new Effect { Name = "Random",      UnlockRep = 0,    Probability = 0.3f, DollarMult = 0f },
-						new Effect { Name = "Random",      UnlockRep = 0,    Probability = 0.6f, DollarMult = 0f }
+						new Effect { Name = "Energizing",  UnlockRep = 2240, Probability = 1.0f, DollarMult = 0f },
+						new Effect { Name = "Random",      UnlockRep = 2750, Probability = 0.3f, DollarMult = 0f },
+						new Effect { Name = "Random",      UnlockRep = 3050, Probability = 0.6f, DollarMult = 0f }
 					}
 				}
 			};

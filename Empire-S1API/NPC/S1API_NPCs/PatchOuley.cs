@@ -28,8 +28,8 @@ namespace Empire.NPC.S1API_NPCs
 		public override List<List<float>> Deals { get; protected set; } =
 			new List<List<float>>
 			{
-				new List<float> { 1f, 0.85f, 614f, 4f },
-				new List<float> { 2f, 0.7f, 800f, 8f }
+				new List<float> { 1f, 1.15f, 614f, 4f },
+				new List<float> { 2f, 1.0f, 800f, 8f }
 			};
 
 		public override int RefreshCost { get; protected set; } = 200;
@@ -52,15 +52,15 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "shrooms",
 					UnlockRep = 0,
-					BaseDollar = 14,
+					BaseDollar = 45,
 					BaseRep = 14,
 					BaseXp = 9,
 					RepMult = 0.001f,
 					XpMult = 0.001f,
 					Qualities = new List<Quality>
 					{
-						new Quality { Type = "standard", DollarMult = 0f, UnlockRep = 0 },
-						new Quality { Type = "premium",  DollarMult = 0f, UnlockRep = 150 }
+						new Quality { Type = "standard", UnlockRep = 0 },
+						new Quality { Type = "premium", UnlockRep = 150 }
 					},
 					Effects = new List<Effect>
 					{
@@ -73,23 +73,23 @@ namespace Empire.NPC.S1API_NPCs
 				new Drug
 				{
 					Type = "weed",
-					UnlockRep = 50,
-					BaseDollar = 10,
-					BaseRep = 9,
-					BaseXp = 6,
+					UnlockRep = 150,
+					BaseDollar = 29,
+					BaseRep = 11,
+					BaseXp = 8,
 					RepMult = 0.001f,
 					XpMult = 0.001f,
 					Qualities = new List<Quality>
 					{
-						new Quality { Type = "poor",     DollarMult = 0f, UnlockRep = 50 },
-						new Quality { Type = "standard", DollarMult = 0f, UnlockRep = 100 }
+						new Quality { Type = "poor", UnlockRep = 150 },
+						new Quality { Type = "standard", UnlockRep = 300 }
 					},
 					Effects = new List<Effect>
 					{
 						new Effect { Name = "Sedating",   UnlockRep = 150,   Probability = 2.0f, DollarMult = 0f },
-						new Effect { Name = "Euphoric",   UnlockRep = 125,  Probability = 1.0f, DollarMult = 0f },
-						new Effect { Name = "Random",     UnlockRep = 175,  Probability = 0.3f, DollarMult = 0f },
-						new Effect { Name = "Glowing",     UnlockRep = 300, Probability = 0.6f, DollarMult = 0f }
+						new Effect { Name = "Euphoric",   UnlockRep = 225,  Probability = 1.0f, DollarMult = 0f },
+						new Effect { Name = "Random",     UnlockRep = 375,  Probability = 0.3f, DollarMult = 0f },
+						new Effect { Name = "Glowing",     UnlockRep = 500, Probability = 0.6f, DollarMult = 0f }
 					}
 				}
 			};

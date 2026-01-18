@@ -1,4 +1,5 @@
-﻿using MelonLoader;
+﻿using Core.DebugHandler;
+using MelonLoader;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -21,7 +22,7 @@ namespace Empire.Utilities
 				signature[4] != 0x0D || signature[5] != 0x0A ||
 				signature[6] != 0x1A || signature[7] != 0x0A)
 			{
-				MelonLogger.Msg("Invalid PNG signature");
+				DebugLogger.Log("Invalid PNG signature");
 			}
 
 			int width = 0;
@@ -57,13 +58,13 @@ namespace Empire.Utilities
 
 			if (idat == null)
 			{
-				MelonLogger.Msg("PNG missing IDAT");
+				DebugLogger.Log("PNG missing IDAT");
 				return null;
 			}
 
 			if (bitDepth != 8 || colorType != 6)
 			{
-				MelonLogger.Msg($"Unsupported PNG format (bitDepth={bitDepth}, colorType={colorType}), expected 8-bit RGBA");
+				DebugLogger.Log($"Unsupported PNG format (bitDepth={bitDepth}, colorType={colorType}), expected 8-bit RGBA");
 				return null;
 			}
 
@@ -130,7 +131,7 @@ namespace Empire.Utilities
 						break;
 
 					default:
-						MelonLogger.Msg($"Unsupported PNG filter type: {filter}");
+						DebugLogger.Log($"Unsupported PNG filter type: {filter}");
 						break;
 				}
 

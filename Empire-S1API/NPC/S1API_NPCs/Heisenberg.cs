@@ -67,7 +67,7 @@ namespace Empire.NPC.S1API_NPCs
 
 					Qualities = new List<Quality>
 					{
-						new Quality { Type = "heavenly", DollarMult = 0f, UnlockRep = 0 }
+						new Quality { Type = "heavenly", UnlockRep = 0 }
 					},
 
 					Effects = new List<Effect>

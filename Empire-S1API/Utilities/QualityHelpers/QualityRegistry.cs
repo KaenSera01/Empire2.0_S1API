@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Empire.Utilities.QualityHelpers
 {
-    public static class QualityRegistry
+	public static class QualityRegistry
 	{
 		public static readonly List<QualityInfo> Qualities = new List<QualityInfo>()
 		{
@@ -17,5 +17,18 @@ namespace Empire.Utilities.QualityHelpers
 
 		public static readonly Dictionary<string, QualityInfo> ByName =
 			Qualities.ToDictionary(q => q.Name, q => q, StringComparer.OrdinalIgnoreCase);
+
+		public static int GetQualityNumberSafe(string quality)
+		{
+			if (string.IsNullOrWhiteSpace(quality))
+				return -1;
+
+			string key = quality.Trim();
+
+			if (!ByName.TryGetValue(key, out var info))
+				return -1;
+
+			return Qualities.IndexOf(info);
+		}
 	}
 }

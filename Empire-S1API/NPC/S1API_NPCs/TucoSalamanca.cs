@@ -30,9 +30,9 @@ namespace Empire.NPC.S1API_NPCs
 		public override List<List<float>> Deals { get; protected set; } =
 			new List<List<float>>
 			{
-				new List<float> { 2f, 1.15f, 40634f, 122f },
-				new List<float> { 3f, 0.9f, 46838f, 135f },
-				new List<float> { 4f, 0.8f, 55043f, 149f }
+				new List<float> { 2f, 1.35f, 40634f, 122f },
+				new List<float> { 3f, 1.1f, 46838f, 135f },
+				new List<float> { 4f, 1.0f, 55043f, 149f }
 			};
 
 		public override int RefreshCost { get; protected set; } = 1000;
@@ -56,7 +56,7 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "meth",
 					UnlockRep = 0,
-					BaseDollar = 43,
+					BaseDollar = 64,
 					BaseRep = 88,
 					BaseXp = 62,
 					RepMult = 0.002f,
@@ -64,13 +64,13 @@ namespace Empire.NPC.S1API_NPCs
 
 					Qualities = new List<Quality>
 					{
-						new Quality { Type = "standard", DollarMult = 0f, UnlockRep = 0 },
-						new Quality { Type = "premium",  DollarMult = 0f, UnlockRep = 100 }
+						new Quality { Type = "standard", UnlockRep = 0 },
+						new Quality { Type = "premium", UnlockRep = 100 }
 					},
 
 					Effects = new List<Effect>
 					{
-						new Effect { Name = "Schizophrenic", UnlockRep = 0,    Probability = 2.0f, DollarMult = 0f },
+						new Effect { Name = "Schizophrenic",  UnlockRep = 0,    Probability = 2.0f, DollarMult = 0f },
 						new Effect { Name = "Athletic",       UnlockRep = 190,  Probability = 2.0f, DollarMult = 0f },
 						new Effect { Name = "Jennerising",    UnlockRep = 460,  Probability = 1.0f, DollarMult = 0f },
 						new Effect { Name = "AntiGravity",    UnlockRep = 1100, Probability = 1.0f, DollarMult = 0f },
@@ -84,7 +84,7 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "cocaine",
 					UnlockRep = 640,
-					BaseDollar = 98,
+					BaseDollar = 108,
 					BaseRep = 69,
 					BaseXp = 66,
 					RepMult = 0.001f,
@@ -92,8 +92,8 @@ namespace Empire.NPC.S1API_NPCs
 
 					Qualities = new List<Quality>
 					{
-						new Quality { Type = "standard", DollarMult = 0f, UnlockRep = 640 },
-						new Quality { Type = "premium",  DollarMult = 0f, UnlockRep = 1000 }
+						new Quality { Type = "standard", UnlockRep = 640 },
+						new Quality { Type = "premium", UnlockRep = 1000 }
 					},
 
 					Effects = new List<Effect>

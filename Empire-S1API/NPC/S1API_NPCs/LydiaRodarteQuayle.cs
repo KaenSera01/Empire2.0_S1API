@@ -56,7 +56,7 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "meth",
 					UnlockRep = 0,
-					BaseDollar = 54,
+					BaseDollar = 63,
 					BaseRep = 181,
 					BaseXp = 155,
 					RepMult = 0.002f,
@@ -64,7 +64,7 @@ namespace Empire.NPC.S1API_NPCs
 
 					Qualities = new List<Quality>
 					{
-						new Quality { Type = "premium", DollarMult = 0f, UnlockRep = 0 }
+						new Quality { Type = "premium", UnlockRep = 0 }
 					},
 
 					Effects = new List<Effect>

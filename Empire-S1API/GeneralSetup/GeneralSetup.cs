@@ -1,15 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using MelonLoader;
-using MelonLoader.Utils;
-using Newtonsoft.Json;
-using S1API.Logging;
 using S1API.Entities.NPCs;
 using S1API.PhoneCalls;
 using Empire.PhoneCalls;
-using S1API.Entities;
+using Core.DebugHandler;
 
 namespace Empire.GeneralSetup
 {
@@ -19,9 +12,9 @@ namespace Empire.GeneralSetup
         // Basic intro to mod and debt mechanics
         public static void UncCalls()
         {
-            MelonLogger.Msg("Unc Calls Method Triggered.");
+            DebugLogger.Log("Unc Calls Method Triggered.");
             //Log if intro has been done
-            MelonLogger.Msg($"Unc Calls: {EmpireSaveData.SaveData.UncNelsonCartelIntroDone}");
+            DebugLogger.Log($"Unc Calls: {EmpireSaveData.SaveData.UncNelsonCartelIntroDone}");
             if (!EmpireSaveData.SaveData.UncNelsonCartelIntroDone)
             {
                 EmpireSaveData.SaveData.UncNelsonCartelIntroDone = true;
@@ -38,13 +31,13 @@ namespace Empire.GeneralSetup
         }
         public static void ResetPlayerStats()
         {
-            MelonLogger.Msg("Resetting Player Stats.");
+            DebugLogger.Log("Resetting Player Stats.");
             S1API.Console.ConsoleHelper.SetPlayerJumpMultiplier(1f);
             S1API.Console.ConsoleHelper.SetPlayerMoveSpeedMultiplier(1f);
             S1API.Console.ConsoleHelper.SetPlayerHealth(100f);
             S1API.Console.ConsoleHelper.SetPlayerEnergyLevel(100f);
             //S1API.Console.ConsoleHelper.SetLawIntensity(1f);
-            MelonLogger.Msg("Player Stats Reset.");
+            DebugLogger.Log("Player Stats Reset.");
         }
     }
 

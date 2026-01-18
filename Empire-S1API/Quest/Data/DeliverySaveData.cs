@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-using Empire;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Empire.Quest.Data
 {

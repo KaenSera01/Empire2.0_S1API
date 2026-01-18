@@ -1,9 +1,9 @@
-using System;
 using MelonLoader;
 using S1API.Internal.Abstraction;
 using S1API.Saveables;
 using S1API.GameTime;
 using Empire.GeneralSetup.Data;
+using Core.DebugHandler;
 
 namespace Empire.GeneralSetup
 {
@@ -14,12 +14,12 @@ namespace Empire.GeneralSetup
 
         public EmpireSaveData()
         {
-            MelonLogger.Msg("Empire Save Data Constructor");
+            DebugLogger.Log("Empire Save Data Constructor");
         }
 
         protected override void OnLoaded()
         {
-            MelonLogger.Msg("Empire Save Data Loaded");
+            DebugLogger.Log("Empire Save Data Loaded");
             GeneralSetup.EmpireSaveData = this;
             GeneralSetup.UncCalls(); // TODO - shift to proper flow
             TimeManager.OnDayPass -= GeneralSetup.ResetPlayerStats;
@@ -28,7 +28,7 @@ namespace Empire.GeneralSetup
 
         protected override void OnCreated()
         {
-            MelonLogger.Msg("Empire Save Data Created");
+            DebugLogger.Log("Empire Save Data Created");
             GeneralSetup.EmpireSaveData = this;
             GeneralSetup.UncCalls(); // TODO - shift to proper flow
             TimeManager.OnDayPass -= GeneralSetup.ResetPlayerStats;

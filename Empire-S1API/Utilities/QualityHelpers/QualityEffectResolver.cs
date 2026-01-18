@@ -3,7 +3,6 @@ using Empire.Utilities.EffectHelpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Empire.Utilities.QualityHelpers
 {
@@ -14,7 +13,7 @@ namespace Empire.Utilities.QualityHelpers
 			var info = q.Type.GetQuality(); // registry lookup
 
 			string name = info?.Name ?? q.Type;
-			float mult = q.DollarMult + (info?.DollarMult ?? 0f);
+			float mult = info?.DollarMult ?? 0f;
 			string color = info?.Color ?? "#FFFFFF";
 
 			return (name, mult, color);

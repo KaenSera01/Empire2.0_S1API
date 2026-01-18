@@ -1,24 +1,27 @@
-﻿using Empire.NPC;
+﻿using Core.DebugHandler;
+using Empire.NPC;
 using Empire.NPC.Data.Enums;
 using Empire.NPC.S1API_NPCs;
 using Empire.Phone.Data;
 using Empire.Quest;
+using Empire.Quest.Data;
+using Empire.Reward;
 using Empire.Utilities;
+using Empire.Utilities.DealDayHelpers;
 using Empire.Utilities.QuestHelpers;
-using Empire_S1API.Utilities;
 using MelonLoader;
 using S1API.Console;
 using S1API.GameTime;
-using S1API.Utils;
 using S1API.Money;
+using S1API.Products;
 using S1API.UI;
+using S1API.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
-using Empire.Utilities.DealDayHelpers;
 
 namespace Empire.Phone
 {
@@ -81,12 +84,12 @@ namespace Empire.Phone
         {
             if (QuestDelivery.QuestActive && QuestDelivery.Active != null)
             {
-                MelonLogger.Msg("[EmpireApp] Resetting active quest state.");
+                DebugLogger.Log("[EmpireApp] Resetting active quest state.");
                 QuestDelivery.Active.Cleanup();
             }     
             if (Instance.q != null)
             {
-                MelonLogger.Msg("[EmpireApp] Resetting EmpirePhoneApp instance.");
+                DebugLogger.Log("[EmpireApp] Resetting EmpirePhoneApp instance.");
                 Instance.q = null;
             }
         }
@@ -106,13 +109,13 @@ namespace Empire.Phone
         protected override void OnCreated()
         {
             base.OnCreated();
-            MelonLogger.Msg("[EmpirePhoneApp] OnCreated called");
+            DebugLogger.Log("[EmpirePhoneApp] OnCreated called");
             Instance = this;
             Reset();
             TimeManager.OnDayPass -= LoadQuests;
             TimeManager.OnDayPass += LoadQuests;
 
-            MelonLogger.Msg("✅ TimeManager.OnDayPass event subscribed");
+            DebugLogger.Log("✅ TimeManager.OnDayPass event subscribed");
         }
 
 		public static void DetermineDealDaysStatic()
@@ -129,20 +132,20 @@ namespace Empire.Phone
         {
             if (EmpireMod.RandomizeDealDays.Value == true)
             {
-                MelonLogger.Msg($"[EmpirePhoneApp] Determining deal days for buyer {buyer.DisplayName}.");
+                DebugLogger.Log($"[EmpirePhoneApp] Determining deal days for buyer {buyer.DisplayName}.");
                 int minDays = GetConfiguredMinDealDays(buyer.Tier);
                 int maxDays = minDays + 2;
 				int randomDays = UnityEngine.Random.Range(minDays, maxDays + 1);    //  +1 to make sure you can get maxDays in the result
 				int numDaysToAssign = Math.Clamp(randomDays, 1, 7);
 
 				buyer.ActiveDealDays = DealDayUtility.GetRandomDays(numDaysToAssign);
-				MelonLogger.Msg($"[EmpirePhoneApp] Buyer {buyer.DisplayName} (Tier {buyer.Tier}) assigned {numDaysToAssign} deal days: {string.Join(", ", buyer.ActiveDealDays)}");
+				DebugLogger.Log($"[EmpirePhoneApp] Buyer {buyer.DisplayName} (Tier {buyer.Tier}) assigned {numDaysToAssign} deal days: {string.Join(", ", buyer.ActiveDealDays)}");
 			}
             else
             {
-                MelonLogger.Msg($"[EmpirePhoneApp] Using default deal days for buyer {buyer.DisplayName}.");
+                DebugLogger.Log($"[EmpirePhoneApp] Using default deal days for buyer {buyer.DisplayName}.");
                 buyer.ActiveDealDays = new List<string>(buyer.DefaultDealDays);
-                MelonLogger.Msg($"[EmpirePhoneApp] Buyer {buyer.DisplayName} (Tier {buyer.Tier}) assigned default deal days: {string.Join(", ", buyer.ActiveDealDays)}");
+                DebugLogger.Log($"[EmpirePhoneApp] Buyer {buyer.DisplayName} (Tier {buyer.Tier}) assigned default deal days: {string.Join(", ", buyer.ActiveDealDays)}");
 			}
         }
 
@@ -150,7 +153,7 @@ namespace Empire.Phone
         {
             if (TimeManager.CurrentDay != 0)
             {
-                MelonLogger.Msg("[EmpirePhoneApp] Skipping deal day determination - not Monday.");
+                DebugLogger.Log("[EmpirePhoneApp] Skipping deal day determination - not Monday.");
                 return;
             }
 
@@ -171,7 +174,7 @@ namespace Empire.Phone
 				return entry.Value;
 
 			// Unknown tiers default to 1 day
-            MelonLogger.Msg($"[EmpirePhoneApp] Unknown buyer tier {buyerTier} - defaulting to 1 min deal day.");
+            DebugLogger.Log($"[EmpirePhoneApp] Unknown buyer tier {buyerTier} - defaulting to 1 min deal day.");
 			return 1;
 		}
 
@@ -292,7 +295,7 @@ namespace Empire.Phone
             refreshRect.sizeDelta = new Vector2(50, 25);
     //        if (Contacts.Buyers == null || Contacts.Buyers.Count == 0)
     //        {
-				//MelonLogger.Msg(
+				//DebugLogger.Log(
 	   //             $"[EmpirePhoneApp] Initializing dealers on UI creation because Contacts.Buyers is " +
 	   //             $"{(Contacts.Buyers == null ? "null" : Contacts.Buyers.Count == 0 ? "empty" : "populated")}"
     //            );
@@ -438,7 +441,7 @@ namespace Empire.Phone
         {
             if (managementDetailPanel == null)
             {
-                MelonLogger.Warning("[EmpirePhoneApp] UpdateBuyerDetails called but managementDetailPanel is null.");
+                DebugLogger.LogWarning("[EmpirePhoneApp] UpdateBuyerDetails called but managementDetailPanel is null.");
                 return;
             }
 
@@ -803,14 +806,14 @@ namespace Empire.Phone
         }
         private System.Collections.IEnumerator WaitForBuyerAndInitialize()
         {
-            MelonLogger.Msg("PhoneApp-WaitForBuyerAndInitialize-Waiting for Contacts to be initialized...");
+            DebugLogger.Log("PhoneApp-WaitForBuyerAndInitialize-Waiting for Contacts to be initialized...");
             
             // First wait for all NPCs to be registered
             while (!Contacts.IsInitialized)
             {
                 yield return null;
             }
-            MelonLogger.Msg("PhoneApp: Contacts.IsInitialized is true, now waiting for full processing...");
+            DebugLogger.Log("PhoneApp: Contacts.IsInitialized is true, now waiting for full processing...");
 
             // CRITICAL: Wait for UpdateCoroutine to complete processing (unlocks, intros, UnlockDrug calls)
             // This prevents the race condition where LoadQuests runs before UnlockedDrugs is populated
@@ -819,7 +822,7 @@ namespace Empire.Phone
                 yield return null;
             }
 
-            MelonLogger.Msg("Dealers and Buyers initialized successfully.");
+            DebugLogger.Log("Dealers and Buyers initialized successfully.");
             LoadQuests();
         }
 
@@ -829,7 +832,7 @@ namespace Empire.Phone
             foreach (var buyer in Contacts.Buyers.Values)
             {
                 string currentDay = TimeManager.CurrentDay.ToString();
-                MelonLogger.Msg($"RefreshButton(): Current Day: {currentDay}.");
+                DebugLogger.Log($"RefreshButton(): Current Day: {currentDay}.");
                 if (buyer.ActiveDealDays != null && buyer.ActiveDealDays.Contains(currentDay) && buyer.IsUnlocked)
                 {
                     refreshCost += buyer.RefreshCost;
@@ -841,7 +844,9 @@ namespace Empire.Phone
                 return;
             }
             LoadQuests();
-            ConsoleHelper.RunCashCommand(-refreshCost);
+
+            if (!EmpireMod.NoRefreshCost.Value)
+                ConsoleHelper.RunCashCommand(-refreshCost);
         }
 
         public static void ClearChildren(Transform parent)
@@ -849,10 +854,6 @@ namespace Empire.Phone
             if (parent == null) return;
 
             UIFactory.ClearChildren(parent);    //  use S1API function
-			//for (int i = parent.childCount - 1; i >= 0; i--)
-			//{
-			//    Object.Destroy(parent.GetChild(i).gameObject);
-			//}
 		}
         private void LoadQuests()
         {
@@ -860,38 +861,38 @@ namespace Empire.Phone
             foreach (var buyer in Contacts.Buyers.Values)
             {
                 string currentDay = TimeManager.CurrentDay.ToString();
-                MelonLogger.Msg($"Checking dealer {buyer.DisplayName} for quests on day {currentDay}.");
+                DebugLogger.Log($"Checking dealer {buyer.DisplayName} for quests on day {currentDay}.");
 				
                 // Skip buyers that aren't unlocked yet (unlock requirements not met)
                 if (!buyer.IsUnlocked)
                 {
-                    //MelonLogger.Msg($"Skipping dealer {buyer.DisplayName}: Not unlocked yet (unlock requirements not met).");
+                    DebugLogger.Log($"Skipping dealer {buyer.DisplayName}: Not unlocked yet (unlock requirements not met).");
                     continue;
                 }
                 
 				if (buyer.ActiveDealDays == null || !buyer.ActiveDealDays.Contains(currentDay) || !buyer.IsInitialized)
                 {
-                    //MelonLogger.Msg($"Skipping dealer {buyer.DisplayName}: DefaultDealDays not set or does not include {currentDay}, or dealer not initialized: IsInitialized -> {buyer.IsInitialized}.");
+                    DebugLogger.Log($"Skipping dealer {buyer.DisplayName}: DefaultDealDays not set or does not include {currentDay}, or dealer not initialized: IsInitialized -> {buyer.IsInitialized}.");
 					continue;
                 }
 
                 var dealerSaveData = buyer.DealerSaveData;
-                MelonLogger.Msg($"Dealer {buyer.DisplayName} - ShippingTier: {dealerSaveData.ShippingTier}.");
+                DebugLogger.Log($"Dealer {buyer.DisplayName} - ShippingTier: {dealerSaveData.ShippingTier}.");
 				if (dealerSaveData.ShippingTier < 0 || dealerSaveData.ShippingTier >= buyer.Shippings.Count)
                 {
-                    MelonLogger.Error($"[EmpirePhoneApp] Invalid ShippingTier {dealerSaveData.ShippingTier} for dealer {buyer.DisplayName}. Shippings.Count={buyer.Shippings.Count}");
+                    DebugLogger.LogError($"[EmpirePhoneApp] Invalid ShippingTier {dealerSaveData.ShippingTier} for dealer {buyer.DisplayName}. Shippings.Count={buyer.Shippings.Count}");
                     continue;
                 }
 
                 var drugTypes = dealerSaveData.UnlockedDrugs.Select(d => d.Type).Distinct().OrderBy(_ => UnityEngine.Random.value).ToArray();
-                MelonLogger.Msg($"Dealer {buyer.DisplayName} has unlocked drugs: {string.Join(", ", drugTypes)}.");
+                DebugLogger.Log($"Dealer {buyer.DisplayName} has unlocked drugs: {string.Join(", ", drugTypes)}.");
 				if (drugTypes.Any())
                 {
-                    MelonLogger.Msg($"Generating quest for dealer {buyer.DisplayName} with drug {drugTypes.First()}. drugTypes.Any(): {drugTypes.Any()}");
+                    DebugLogger.Log($"Generating quest for dealer {buyer.DisplayName} with drug {drugTypes.First()}. drugTypes.Any(): {drugTypes.Any()}");
 					GenerateQuest(buyer, drugTypes.First());
                 }
             }
-            MelonLogger.Msg($"✅ Total quests loaded: {quests.Count}");
+            DebugLogger.Log($"✅ Total quests loaded: {quests.Count}");
             RefreshQuestList();
         }
 
@@ -906,107 +907,200 @@ namespace Empire.Phone
 
 		private void GenerateQuest(EmpireNPC buyer, string drugType)
 		{
-			// --- Validate drug availability -----------------------------------------
 			var unlockedDrug = buyer.DealerSaveData.UnlockedDrugs
 				.FirstOrDefault(d => d.Type == drugType);
 
-            if (unlockedDrug == null)
-            {
-                MelonLogger.Msg($"Unlocked drug '{drugType}' not found for dealer '{buyer.DisplayName}'.");
-                return;
-            }
+			if (unlockedDrug == null)
+			{
+				DebugLogger.Log($"Unlocked drug '{drugType}' not found for dealer '{buyer.DisplayName}'.");
+				return;
+			}
 
 			if (unlockedDrug.Qualities.Count == 0)
 			{
-				MelonLogger.Error(
+				DebugLogger.LogError(
 					$"[GenerateQuest] No qualities unlocked for '{unlockedDrug.Type}' on dealer '{buyer.DisplayName}'.");
 				return;
 			}
 
-			// --- Builder -------------------------------------------------------------
 			var builder = new QuestBuilder(buyer, unlockedDrug);
 
-			// --- Amount --------------------------------------------------------------
 			int amount = builder.CalculateAmount();
 
-			// --- Quality -------------------------------------------------------------
 			var (qualityName, qualityMult, qualityColor) = builder.SelectQuality();
 
-			// --- Random numbers ------------------------------------------------------
-			float randomNum1 = UnityEngine.Random.Range(EmpireConfig.RandomRanges[0], EmpireConfig.RandomRanges[1]);
-			float randomNum2 = UnityEngine.Random.Range(EmpireConfig.RandomRanges[2], EmpireConfig.RandomRanges[3]);
-			float randomNum3 = UnityEngine.Random.Range(EmpireConfig.RandomRanges[4], EmpireConfig.RandomRanges[5]);
-			float randomNum4 = UnityEngine.Random.Range(EmpireConfig.RandomRanges[6], EmpireConfig.RandomRanges[7]);
+			// Keep random for effect selection if you like
+			float randomNum1 = 1f; // used to scale effect multipliers; set to 1 for determinism
 
-			// --- Effects -------------------------------------------------------------
 			var (necessary, necessaryMult, optional, optionalMult, temp11, temp21)
 				= builder.SelectEffects(randomNum1);
 
-			// --- Deal time -----------------------------------------------------------
 			int idx = UnityEngine.Random.Range(0, buyer.Deals.Count);
 			var shipping = buyer.Shippings[buyer.DealerSaveData.ShippingTier];
 
 			int dealTime = (int)(buyer.Deals[idx][0] * shipping.DealModifier[0]);
 			float dealTimeMult = (float)(buyer.Deals[idx][1] * shipping.DealModifier[1]);
 
-			// --- Aggregate multipliers ----------------------------------------------
-			float aggMin = (1 + qualityMult) * temp11 * dealTimeMult * randomNum4;
-			float aggMax = (1 + qualityMult) * temp21 * dealTimeMult * randomNum4;
+			// For preview only, you can still compute min/max deterministically if you want
+			float aggMin = (1 + qualityMult) * temp11 * dealTimeMult;
+			float aggMax = (1 + qualityMult) * temp21 * dealTimeMult;
 
-			// --- Effect description --------------------------------------------------
 			string effectDesc = BuildEffectDescription(necessary, optional);
 
-			// --- Dialogue index ------------------------------------------------------
 			int dialogueIndex = RandomUtils.RangeInt(0, buyer.EmpireDialogue.DealStart.Count);
 
-			// --- Create quest --------------------------------------------------------
-			var quest = new QuestData
-			{
-				Title = $"{buyer.DisplayName} wants {drugType} delivered.",
-				Task =
-					$"Deliver <color=#FF0004>{amount}x</color> " +
-					$"<color={qualityColor}>{qualityName}</color> " +
-					$"<color=#FF0004>{drugType}</color> " +
-					$"with effects: {effectDesc}",
+            var quest = new QuestData
+            {
+                Title = $"{buyer.DisplayName} wants {drugType} delivered.",
+                Task =
+                    $"Deliver <color=#FF0004>{amount}x</color> " +
+                    $"<color={qualityColor}>{qualityName}</color> " +
+                    $"<color=#FF0004>{drugType}</color> " +
+                    $"with effects: {effectDesc}",
 
-				ProductID = drugType,
-				AmountRequired = (uint)amount,
-				DealerName = buyer.DisplayName,
-				QuestImage = buyer.Image,
+                ProductID = drugType,
+                AmountRequired = (uint)amount,
+                DealerName = buyer.DisplayName,
+                QuestImage = buyer.Image,
 
-				BaseDollar = RoundToHalfMSD((int)(unlockedDrug.BaseDollar * amount / randomNum4)),
-				BaseRep = RoundToHalfMSD((int)(unlockedDrug.BaseRep * randomNum2)),
-				BaseXp = RoundToHalfMSD((int)(unlockedDrug.BaseXp * randomNum3)),
+                // Deterministic base values
+                BaseDollar = (int)(unlockedDrug.BaseDollar), // * amount), //RoundToHalfMSD((int)(unlockedDrug.BaseDollar * amount)),
+                BaseRep = (int)(unlockedDrug.BaseRep), //RoundToHalfMSD((int)(unlockedDrug.BaseRep)),
+                BaseXp = (int)(unlockedDrug.BaseXp), //RoundToHalfMSD((int)(unlockedDrug.BaseXp)),
 
-				RepMult = unlockedDrug.RepMult * randomNum2,
-				XpMult = unlockedDrug.XpMult * randomNum3,
+                RepMult = unlockedDrug.RepMult,
+                XpMult = unlockedDrug.XpMult,
 
-				DollarMultiplierMin = (float)Math.Round(aggMin, 2),
-				DollarMultiplierMax = (float)Math.Round(aggMax, 2),
+                DollarMultiplierMin = (float)Math.Round(aggMin, 2),
+                DollarMultiplierMax = (float)Math.Round(aggMax, 2),
 
-				DealTime = dealTime,
-				DealTimeMult = dealTimeMult * randomNum4,
+                DealTime = dealTime,
+                DealTimeMult = dealTimeMult,
 
-				Penalties = new List<int>
-		        {
-			        RoundToHalfMSD((int)(buyer.Deals[idx][2] * shipping.DealModifier[2] * randomNum1)),
-			        RoundToHalfMSD((int)(buyer.Deals[idx][3] * shipping.DealModifier[3] * randomNum2))
-		        },
+                Penalties = new List<int>
+                {
+                    (int)(buyer.Deals[idx][2] * shipping.DealModifier[2]), //RoundToHalfMSD((int)(buyer.Deals[idx][2] * shipping.DealModifier[2])),
+                    (int)(buyer.Deals[idx][3] * shipping.DealModifier[3])  //RoundToHalfMSD((int)(buyer.Deals[idx][3] * shipping.DealModifier[3]))
+                },
 
-				Quality = qualityName,
-				QualityMult = qualityMult,
+                Quality = qualityName,
+                QualityMult = qualityMult,
 
-				NecessaryEffects = necessary,
-				NecessaryEffectMult = necessaryMult,
-				OptionalEffects = optional,
-				OptionalEffectMult = optionalMult,
+                NecessaryEffects = necessary,
+                NecessaryEffectMult = necessaryMult,
+                OptionalEffects = optional,
+                OptionalEffectMult = optionalMult,
 
-				Index = Index++,
-				DialogueIndex = dialogueIndex
-			};
+                Index = Index++,
+                DialogueIndex = dialogueIndex
+            }; 
 
 			quests.Add(quest);
 		}
+
+		//private void GenerateQuest(EmpireNPC buyer, string drugType)
+		//{
+		//	// --- Validate drug availability -----------------------------------------
+		//	var unlockedDrug = buyer.DealerSaveData.UnlockedDrugs
+		//		.FirstOrDefault(d => d.Type == drugType);
+
+  //          if (unlockedDrug == null)
+  //          {
+  //              DebugLogger.Log($"Unlocked drug '{drugType}' not found for dealer '{buyer.DisplayName}'.");
+  //              return;
+  //          }
+
+		//	if (unlockedDrug.Qualities.Count == 0)
+		//	{
+		//		DebugLogger.LogError(
+		//			$"[GenerateQuest] No qualities unlocked for '{unlockedDrug.Type}' on dealer '{buyer.DisplayName}'.");
+		//		return;
+		//	}
+
+		//	// --- Builder -------------------------------------------------------------
+		//	var builder = new QuestBuilder(buyer, unlockedDrug);
+
+		//	// --- Amount --------------------------------------------------------------
+		//	int amount = builder.CalculateAmount();
+
+		//	// --- Quality -------------------------------------------------------------
+		//	var (qualityName, qualityMult, qualityColor) = builder.SelectQuality();
+
+		//	// --- Random numbers ------------------------------------------------------
+		//	float randomNum1 = UnityEngine.Random.Range(EmpireConfig.RandomRanges[0], EmpireConfig.RandomRanges[1]);
+		//	float randomNum2 = UnityEngine.Random.Range(EmpireConfig.RandomRanges[2], EmpireConfig.RandomRanges[3]);
+		//	float randomNum3 = UnityEngine.Random.Range(EmpireConfig.RandomRanges[4], EmpireConfig.RandomRanges[5]);
+		//	float randomNum4 = UnityEngine.Random.Range(EmpireConfig.RandomRanges[6], EmpireConfig.RandomRanges[7]);
+
+		//	// --- Effects -------------------------------------------------------------
+		//	var (necessary, necessaryMult, optional, optionalMult, temp11, temp21)
+		//		= builder.SelectEffects(randomNum1);
+
+		//	// --- Deal time -----------------------------------------------------------
+		//	int idx = UnityEngine.Random.Range(0, buyer.Deals.Count);
+		//	var shipping = buyer.Shippings[buyer.DealerSaveData.ShippingTier];
+
+		//	int dealTime = (int)(buyer.Deals[idx][0] * shipping.DealModifier[0]);
+		//	float dealTimeMult = (float)(buyer.Deals[idx][1] * shipping.DealModifier[1]);
+
+		//	// --- Aggregate multipliers ----------------------------------------------
+		//	float aggMin = (1 + qualityMult) * temp11 * dealTimeMult * randomNum4;
+		//	float aggMax = (1 + qualityMult) * temp21 * dealTimeMult * randomNum4;
+
+		//	// --- Effect description --------------------------------------------------
+		//	string effectDesc = BuildEffectDescription(necessary, optional);
+
+		//	// --- Dialogue index ------------------------------------------------------
+		//	int dialogueIndex = RandomUtils.RangeInt(0, buyer.EmpireDialogue.DealStart.Count);
+
+		//	// --- Create quest --------------------------------------------------------
+		//	var quest = new QuestData
+		//	{
+		//		Title = $"{buyer.DisplayName} wants {drugType} delivered.",
+		//		Task =
+		//			$"Deliver <color=#FF0004>{amount}x</color> " +
+		//			$"<color={qualityColor}>{qualityName}</color> " +
+		//			$"<color=#FF0004>{drugType}</color> " +
+		//			$"with effects: {effectDesc}",
+
+		//		ProductID = drugType,
+		//		AmountRequired = (uint)amount,
+		//		DealerName = buyer.DisplayName,
+		//		QuestImage = buyer.Image,
+
+		//		BaseDollar = RoundToHalfMSD((int)(unlockedDrug.BaseDollar * amount / randomNum4)),
+		//		BaseRep = RoundToHalfMSD((int)(unlockedDrug.BaseRep * randomNum2)),
+		//		BaseXp = RoundToHalfMSD((int)(unlockedDrug.BaseXp * randomNum3)),
+
+		//		RepMult = unlockedDrug.RepMult * randomNum2,
+		//		XpMult = unlockedDrug.XpMult * randomNum3,
+
+		//		DollarMultiplierMin = (float)Math.Round(aggMin, 2),
+		//		DollarMultiplierMax = (float)Math.Round(aggMax, 2),
+
+		//		DealTime = dealTime,
+		//		DealTimeMult = dealTimeMult * randomNum4,
+
+		//		Penalties = new List<int>
+		//        {
+		//	        RoundToHalfMSD((int)(buyer.Deals[idx][2] * shipping.DealModifier[2] * randomNum1)),
+		//	        RoundToHalfMSD((int)(buyer.Deals[idx][3] * shipping.DealModifier[3] * randomNum2))
+		//        },
+
+		//		Quality = qualityName,
+		//		QualityMult = qualityMult,
+
+		//		NecessaryEffects = necessary,
+		//		NecessaryEffectMult = necessaryMult,
+		//		OptionalEffects = optional,
+		//		OptionalEffectMult = optionalMult,
+
+		//		Index = Index++,
+		//		DialogueIndex = dialogueIndex
+		//	};
+
+		//	quests.Add(quest);
+		//}
 
 		private string BuildEffectDescription(List<string> necessary, List<string> optional)
 		{
@@ -1048,7 +1142,7 @@ namespace Empire.Phone
             }
             catch (Exception ex)
             {
-                MelonLogger.Error($"❌ CancelCurrentQuest() exception: {ex}");
+                DebugLogger.LogError($"❌ CancelCurrentQuest() exception: {ex}");
             }
         }
 
@@ -1114,41 +1208,227 @@ namespace Empire.Phone
             }
         }
 
-        private void OnSelectQuest(QuestData quest)
-        {
-            selectedBuyer = Contacts.GetBuyer(quest.DealerName);
-            RefreshQuestList(); // Redraw list to show new selection highlight
+		private void OnSelectQuest(QuestData quest)
+		{
+			selectedBuyer = Contacts.GetBuyer(quest.DealerName);
+			RefreshQuestList(); // Redraw list to show new selection highlight
 
-            var Buyer = Contacts.GetBuyer(quest.DealerName);
-            var dialogue = Buyer.SendCustomMessage(DialogueType.DealStart, quest.ProductID, (int)quest.AmountRequired, quest.Quality, quest.NecessaryEffects, quest.OptionalEffects, 0, true, quest.DialogueIndex);
-            questTitle.text = quest.Title;
-            questTask.text = $"{dialogue}";
+			var Buyer = Contacts.GetBuyer(quest.DealerName);
+			var dialogue = Buyer.SendCustomMessage(
+				DialogueType.DealStart,
+				quest.ProductID,
+				(int)quest.AmountRequired,
+				quest.Quality,
+				quest.NecessaryEffects,
+				quest.OptionalEffects,
+				0,
+				true,
+				quest.DialogueIndex
+			);
+
+			questTitle.text = quest.Title;
+			questTask.text = $"{dialogue}";
+
+			// Build preview data for reward breakdown
+			var previewData = new DeliverySaveData
+			{
+				ProductID = quest.ProductID,
+				RequiredAmount = quest.AmountRequired,
+				DealerName = quest.DealerName,
+				Reward = quest.BaseDollar,
+				RepReward = quest.BaseRep,
+				XpReward = quest.BaseXp,
+				RepMult = quest.RepMult,
+				XpMult = quest.XpMult,
+				Task = quest.Task,
+				DealTime = quest.DealTime,
+				DealTimeMult = quest.DealTimeMult,
+				Penalties = quest.Penalties,
+				Quality = quest.Quality,
+				QualityMult = quest.QualityMult,
+				NecessaryEffects = quest.NecessaryEffects,
+				OptionalEffects = quest.OptionalEffects,
+				NecessaryEffectMult = quest.NecessaryEffectMult,
+				OptionalEffectMult = quest.OptionalEffectMult
+			};
+
+			// Product definition
+			var productDef = ProductManager.DiscoveredProducts
+				.FirstOrDefault(p => QuestDelivery.GetProductType(p) == quest.ProductID);
+
+            DebugLogger.Log("ProductManager.DiscoveredProducts.All IDs: " + string.Join(", ", ProductManager.DiscoveredProducts.Select(p => p.ID)));
+			DebugLogger.Log($"Quest Preview - ProductID: {quest.ProductID}, ProductDef found: {productDef != null}");
+
+			// Optional & Necessary Effects
+			var assumedProperties = new List<string>();
+
+			assumedProperties.AddRange(
+				quest.OptionalEffects.Select(e => e.Trim().ToLower())
+			);
+
+			if (EmpireMod.DisableNecessaryEffects.Value)
+			{
+				assumedProperties.AddRange(
+					quest.NecessaryEffects.Select(e => e.Trim().ToLower())
+				);
+			}
+
+
+			Quality assumedQualityEnum =
+				Enum.TryParse<Quality>(quest.Quality, true, out var qEnum)
+					? qEnum
+					: Quality.Standard;
+
+			// ----------------------------------------------------------------------
+			// CALCULATE PREVIEW BREAKDOWN
+			// ----------------------------------------------------------------------
+			var breakdown = RewardCalculator.CalculatePreview(
+				previewData,
+				productDef,
+				quest.AmountRequired,
+				assumedProperties,
+				assumedQualityEnum
+			);
+
+			DebugLogger.Log(
+	            $"Quest Preview - Breakdown calculated:" +
+	            $"\n  Null? {breakdown == null}" +
+	            $"\n  BaseValue: {breakdown?.BaseValue}" +
+	            $"\n  QualityBonus: {breakdown?.QualityBonus}" +
+	            $"\n  DealTimeBonus: {breakdown?.DealTimeBonus}" +
+	            $"\n  EffectsTotalBonus: {breakdown?.EffectsTotalBonus}" +
+	            $"\n  FinalReward: {breakdown?.FinalReward}" +
+	            $"\n  NecessaryEffects:" +
+	            $"{string.Join("", breakdown?.NecessaryEffects.Select(e => $"\n    • {e.Name} (x{e.Multiplier}) = {e.Value}") ?? new List<string>())}" +
+	            $"\n  OptionalEffects:" +
+	            $"{string.Join("", breakdown?.OptionalEffects.Select(e => $"\n    • {e.Name} (x{e.Multiplier}) = {e.Value}") ?? new List<string>())}"
+            );
+
+			// ----------------------------------------------------------------------
+			// BUILD UI TEXT
+			// ----------------------------------------------------------------------
+			var sb = new System.Text.StringBuilder();
+
+			// Base reward
+			sb.AppendLine("<b><color=#FFD700>Base Reward:</color></b> " +
+						  $"<color=#00FF00>${Math.Round(breakdown.BaseValue, 0)}</color>");
+			sb.AppendLine("");
+
+			// Effects
+			sb.AppendLine("<b><color=#FFD700>Effects:</color></b>");
+
+			if (breakdown.NecessaryEffects.Count == 0 && breakdown.OptionalEffects.Count == 0)
+			{
+				sb.AppendLine("<i>No effects contribute to this delivery.</i>");
+			}
+			else
+			{
+				foreach (var e in breakdown.NecessaryEffects)
+				{
+					float perPiece = (breakdown.BaseValue / quest.AmountRequired) * e.Multiplier;
+					sb.AppendLine(
+						$"• {e.Name} <color=#FFA500>(necessary)</color> – " +
+						$"mult {e.Multiplier:F2} = " +
+						$"${perPiece:F2} per piece, " +
+						$"${e.Value:F0} total");
+				}
+
+				foreach (var e in breakdown.OptionalEffects)
+				{
+					float perPiece = (breakdown.BaseValue / quest.AmountRequired) * e.Multiplier;
+					sb.AppendLine(
+						$"• {e.Name} <color=#87CEFA>(optional)</color> – " +
+						$"mult {e.Multiplier:F2} = " +
+						$"${perPiece:F2} per piece, " +
+						$"${e.Value:F0} total");
+				}
+			}
+
+			sb.AppendLine("");
+
+			// Total from effects
+			sb.AppendLine("<b><color=#FFD700>Total From Effects:</color></b> " +
+			  $"<color=#00FF00>${breakdown.EffectsTotalBonus:F0}</color>");
+			sb.AppendLine("");
+
+			// Reputation
+			float repGain = quest.BaseRep + (breakdown.FinalReward * quest.RepMult);
+			sb.AppendLine("<b><color=#FFD700>Reputation Gain:</color></b> " +
+						  $"<color=#00FF00>{repGain:F0}</color>");
+			sb.AppendLine("");
+
+			// XP
+			float xpGain = quest.BaseXp + (breakdown.FinalReward * quest.XpMult);
+			sb.AppendLine("<b><color=#FFD700>XP Gain:</color></b> " +
+						  $"<color=#00FF00>{xpGain:F0}</color>");
+			sb.AppendLine("");
+
+			// Deal expiry & penalties
+			sb.AppendLine($"<b><color=#FF6347>Deal Expiry:</color></b> " +
+						  $"<color=#FFA500>{quest.DealTime} Days</color>");
+			sb.AppendLine($"<b><color=#FF6347>Failure Penalties:</color></b> " +
+						  $"<color=#FF0000>${quest.Penalties[0]}</color> + " +
+						  $"<color=#FF4500>{quest.Penalties[1]} Rep</color>");
+
+			questReward.text = sb.ToString();
+
+			// ----------------------------------------------------------------------
+			// BUTTON LOGIC
+			// ----------------------------------------------------------------------
+			deliveryStatus.text = "";
+
+			if (!QuestDelivery.QuestActive)
+			{
+				ButtonUtils.Enable(acceptButton, acceptLabel, "Accept Delivery");
+				ButtonUtils.ClearListeners(acceptButton);
+				ButtonUtils.AddListener(acceptButton, () => AcceptQuest(quest));
+			}
+			else
+			{
+				ButtonUtils.Disable(acceptButton, acceptLabel, "In progress");
+				ButtonUtils.ClearListeners(acceptButton);
+			}
+
+			ButtonUtils.Enable(cancelButton, cancelLabel, "Cancel current delivery");
+			ButtonUtils.ClearListeners(cancelButton);
+			ButtonUtils.AddListener(cancelButton, () => CancelCurrentQuest(quest));
+		}
+
+		//private void OnSelectQuest(QuestData quest)
+  //      {
+  //          selectedBuyer = Contacts.GetBuyer(quest.DealerName);
+  //          RefreshQuestList(); // Redraw list to show new selection highlight
+
+  //          var Buyer = Contacts.GetBuyer(quest.DealerName);
+  //          var dialogue = Buyer.SendCustomMessage(DialogueType.DealStart, quest.ProductID, (int)quest.AmountRequired, quest.Quality, quest.NecessaryEffects, quest.OptionalEffects, 0, true, quest.DialogueIndex);
+  //          questTitle.text = quest.Title;
+  //          questTask.text = $"{dialogue}";
             
             
-            questReward.text =
-                $"<b><color=#FFD700>Rewards:</color></b> <color=#00FF00>${quest.BaseDollar} / {quest.BaseDollar / quest.AmountRequired} per piece</color> + <i>Price x</i> (<color=#00FFFF>{quest.DollarMultiplierMin}</color> - <color=#00FFFF>{quest.DollarMultiplierMax}</color>)\n" +
-                $"<b><color=#FFD700>Reputation:</color></b> <color=#00FF00>{quest.BaseRep}</color> + Rewards x <color=#00FFFF>{Math.Round(quest.RepMult, 4)}</color>\n" +
-                $"<b><color=#FFD700>XP:</color></b> <color=#00FF00>{quest.BaseXp}</color> + Rewards x <color=#00FFFF>{Math.Round(quest.XpMult, 4)}</color>\n\n" +
-                $"<b><color=#FF6347>Deal Expiry:</color></b> <color=#FFA500>{quest.DealTime} Days</color>\n" +
-                $"<b><color=#FF6347>Failure Penalties:</color></b> <color=#FF0000>${quest.Penalties[0]}</color> + <color=#FF4500>{quest.Penalties[1]} Rep</color>";
+  //          questReward.text =
+  //              $"<b><color=#FFD700>Rewards:</color></b> <color=#00FF00>${quest.BaseDollar} / {quest.BaseDollar / quest.AmountRequired} per piece</color> + <i>Price x</i> (<color=#00FFFF>{quest.DollarMultiplierMin}</color> - <color=#00FFFF>{quest.DollarMultiplierMax}</color>)\n" +
+  //              $"<b><color=#FFD700>Reputation:</color></b> <color=#00FF00>{quest.BaseRep}</color> + Rewards x <color=#00FFFF>{Math.Round(quest.RepMult, 4)}</color>\n" +
+  //              $"<b><color=#FFD700>XP:</color></b> <color=#00FF00>{quest.BaseXp}</color> + Rewards x <color=#00FFFF>{Math.Round(quest.XpMult, 4)}</color>\n\n" +
+  //              $"<b><color=#FF6347>Deal Expiry:</color></b> <color=#FFA500>{quest.DealTime} Days</color>\n" +
+  //              $"<b><color=#FF6347>Failure Penalties:</color></b> <color=#FF0000>${quest.Penalties[0]}</color> + <color=#FF4500>{quest.Penalties[1]} Rep</color>";
 
-            deliveryStatus.text = "";
-            if (!QuestDelivery.QuestActive)
-            {
-                ButtonUtils.Enable(acceptButton, acceptLabel, "Accept Delivery");
-                ButtonUtils.ClearListeners(acceptButton);
-                ButtonUtils.AddListener(acceptButton, () => AcceptQuest(quest));
-            }
-            else
-            {
-                ButtonUtils.Disable(acceptButton, acceptLabel, "In progress");
-                ButtonUtils.ClearListeners(acceptButton);
-            }
+  //          deliveryStatus.text = "";
+  //          if (!QuestDelivery.QuestActive)
+  //          {
+  //              ButtonUtils.Enable(acceptButton, acceptLabel, "Accept Delivery");
+  //              ButtonUtils.ClearListeners(acceptButton);
+  //              ButtonUtils.AddListener(acceptButton, () => AcceptQuest(quest));
+  //          }
+  //          else
+  //          {
+  //              ButtonUtils.Disable(acceptButton, acceptLabel, "In progress");
+  //              ButtonUtils.ClearListeners(acceptButton);
+  //          }
 
-            ButtonUtils.Enable(cancelButton, cancelLabel, "Cancel current delivery");
-            ButtonUtils.ClearListeners(cancelButton);
-            ButtonUtils.AddListener(cancelButton, () => CancelCurrentQuest(quest));
-        }
+  //          ButtonUtils.Enable(cancelButton, cancelLabel, "Cancel current delivery");
+  //          ButtonUtils.ClearListeners(cancelButton);
+  //          ButtonUtils.AddListener(cancelButton, () => CancelCurrentQuest(quest));
+  //      }
 
         public void OnQuestComplete()
         {
@@ -1195,7 +1475,7 @@ namespace Empire.Phone
             }
             else
             {
-                MelonLogger.Error("❌ Failed to create QuestDelivery instance - Accept Quest.");
+                DebugLogger.LogError("❌ Failed to create QuestDelivery instance - Accept Quest.");
                 return;
             }
 

@@ -33,7 +33,7 @@ namespace Empire.NPC.S1API_NPCs
 			{
 				new List<float> { 3f, 1.3f, 159744f, 458f },
 				new List<float> { 4f, 1.15f, 172032f, 515f },
-				new List<float> { 5f, 0.95f, 204320f, 573f }
+				new List<float> { 5f, 1.0f, 204320f, 573f }
 			};
 
 		public override int RefreshCost { get; protected set; } = 1050;
@@ -65,8 +65,8 @@ namespace Empire.NPC.S1API_NPCs
 
 					Qualities = new List<Quality>
 					{
-						new Quality { Type = "premium",  DollarMult = 0f, UnlockRep = 0 },
-						new Quality { Type = "heavenly", DollarMult = 0f, UnlockRep = 300 }
+						new Quality { Type = "premium", UnlockRep = 0 },
+						new Quality { Type = "heavenly", UnlockRep = 300 }
 					},
 
 					Effects = new List<Effect>
@@ -86,7 +86,7 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "cocaine",
 					UnlockRep = 1750,
-					BaseDollar = 104,
+					BaseDollar = 130,
 					BaseRep = 220,
 					BaseXp = 224,
 					RepMult = 0.001f,
@@ -94,7 +94,7 @@ namespace Empire.NPC.S1API_NPCs
 
 					Qualities = new List<Quality>
 					{
-						new Quality { Type = "premium", DollarMult = 0f, UnlockRep = 1750 }
+						new Quality { Type = "premium", UnlockRep = 1750 }
 					},
 
 					Effects = new List<Effect>

@@ -1,16 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using MelonLoader;
-using MelonLoader.Utils;
-using Newtonsoft.Json;
-using S1API.Logging;
-using S1API.Entities.NPCs;
 using S1API.GameTime;
 using S1API.Money;
 using S1API.Entities;
 using Empire.NPC.S1API_NPCs;
+using Core.DebugHandler;
 
 namespace Empire.DebtHelpers
 {
@@ -73,7 +67,7 @@ namespace Empire.DebtHelpers
 
             // Send a message to the player about the debt status
             // This is a placeholder for the actual message sending method
-            MelonLogger.Msg($"Debt status for {buyer.DisplayName}: {buyer.DealerSaveData.DebtRemaining}");
+            DebugLogger.Log($"Debt status for {buyer.DisplayName}: {buyer.DealerSaveData.DebtRemaining}");
         }
 
         // Method to check if debtpayable>debt paid this week, if so set paidthisweek to true
@@ -134,7 +128,7 @@ namespace Empire.DebtHelpers
                 amountPayable = buyer.DealerSaveData.DebtRemaining;
             }
             //Log the calculation details
-            MelonLogger.Msg($"Calculating weekly payment for {buyer.DisplayName}: DayMultiple={dayMultiple}, DayExponent={dayExponent}, ElapsedDays={elapsedDays}, InitialAmount={dayMultiple * (float)Math.Pow(elapsedDays, dayExponent)}, AmountPaidThisWeek={buyer.DealerSaveData.DebtPaidThisWeek}, AmountPayable={amountPayable}");
+            //DebugLogger.Log($"Calculating weekly payment for {buyer.DisplayName}: DayMultiple={dayMultiple}, DayExponent={dayExponent}, ElapsedDays={elapsedDays}, InitialAmount={dayMultiple * (float)Math.Pow(elapsedDays, dayExponent)}, AmountPaidThisWeek={buyer.DealerSaveData.DebtPaidThisWeek}, AmountPayable={amountPayable}");
             
             return amountPayable;
         }

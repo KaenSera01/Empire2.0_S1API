@@ -64,8 +64,8 @@ namespace Empire.NPC.S1API_NPCs
 
 					Qualities = new List<Quality>
 					{
-						new Quality { Type = "premium",  DollarMult = 0f, UnlockRep = 0 },
-						new Quality { Type = "heavenly", DollarMult = 0f, UnlockRep = 500 }
+						new Quality { Type = "premium", UnlockRep = 0 },
+						new Quality { Type = "heavenly", UnlockRep = 500 }
 					},
 
 					Effects = new List<Effect>
@@ -85,7 +85,7 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "meth",
 					UnlockRep = 2450,
-					BaseDollar = 49,
+					BaseDollar = 60,
 					BaseRep = 398,
 					BaseXp = 383,
 					RepMult = 0.002f,
@@ -93,7 +93,7 @@ namespace Empire.NPC.S1API_NPCs
 
 					Qualities = new List<Quality>
 					{
-						new Quality { Type = "premium", DollarMult = 0f, UnlockRep = 2450 }
+						new Quality { Type = "premium", UnlockRep = 2450 }
 					},
 
 					Effects = new List<Effect>

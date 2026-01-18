@@ -1,4 +1,5 @@
-﻿using Empire.DebtHelpers;
+﻿using Core.DebugHandler;
+using Empire.DebtHelpers;
 using Empire.NPC.Data.Enums;
 using Empire.NPC.S1API_NPCs;
 using Empire.Phone;
@@ -32,29 +33,29 @@ namespace Empire.NPC
 		{
             if (AllEmpireNPCs == null)
             {
-                MelonLogger.Error("❌ AllEmpireNPCs is null.");
+                DebugLogger.LogError("❌ AllEmpireNPCs is null.");
             }
             else
             {
-                MelonLogger.Msg($"AllEmpireNPCs count: {AllEmpireNPCs.Count}");
+				DebugLogger.Log($"AllEmpireNPCs count: {AllEmpireNPCs.Count}");
             }
 
 			if (npc == null)
 			{
-				MelonLogger.Error("❌ Attempted to register a null EmpireNPC.");
+				DebugLogger.LogError("❌ Attempted to register a null EmpireNPC.");
 				return;
 			}
 
 			if (string.IsNullOrEmpty(npc.DealerId))
 			{
-				MelonLogger.Error("❌ EmpireNPC has no DealerId.");
+				DebugLogger.LogError("❌ EmpireNPC has no DealerId.");
 				return;
 			}
 
 			// Prevent duplicate registration
 			if (Buyers.ContainsKey(npc.DealerId))
 			{
-				MelonLogger.Warning($"⚠️ Empire NPC already registered: {npc.DealerId}");
+				DebugLogger.LogWarning($"⚠️ Empire NPC already registered: {npc.DealerId}");
 				return;
 			}
 
@@ -65,30 +66,30 @@ namespace Empire.NPC
 			// Note: Do NOT set DealerSaveData.IsInitialized here - it's used to track if intro was sent in OnLoaded()
 			// The proper intro dialogue is sent in UpdateCoroutine based on IntroDone flag
 
-			MelonLogger.Msg($"✅ Registered Empire NPC: {npc.DealerId}; Initialized: {npc.IsInitialized}");
+			DebugLogger.Log($"✅ Registered Empire NPC: {npc.DealerId}; Initialized: {npc.IsInitialized}");
 
             if (AllEmpireNPCs != null)
             {
 				if (Buyers.Count >= AllEmpireNPCs.Count)    //  >= just in case
 				{
 					IsInitialized = true;
-					MelonLogger.Msg($"🎉 All Empire NPCs registered ({Buyers.Count}/{AllEmpireNPCs.Count}). Initialization complete.");
+					MelonLogger.Msg($"🎉 All Empire 2.0 NPCs registered ({Buyers.Count}/{AllEmpireNPCs.Count}). Initialization complete.");
 					Contacts.Update();
-					MelonLogger.Msg("🔄 Contacts Update called after all NPCs registered.");
+					DebugLogger.Log("🔄 Contacts Update called after all NPCs registered.");
                     EmpirePhoneApp.DetermineDealDaysStatic();
-                    MelonLogger.Msg("📱 EmpirePhoneApp.DetermineDealDaysStatic() called.");
+                    DebugLogger.Log("📱 EmpirePhoneApp.DetermineDealDaysStatic() called.");
 				}
 			}
             else
             {
-                MelonLogger.Msg($"AllEmpireNPCs null.  Something borked.");
+                DebugLogger.Log($"AllEmpireNPCs null.  Something borked.");
             }
 		}
 
 		public static EmpireNPC? GetBuyer(string dealerName)
         {
 			BuyersByDisplayName.TryGetValue(dealerName, out var buyer);
-            MelonLogger.Msg($"🔍 GetBuyer called for dealerName: {dealerName}, Found: {buyer != null}");
+            DebugLogger.Log($"🔍 GetBuyer called for dealerName: {dealerName}, Found: {buyer != null}");
 
             return buyer;
         }
@@ -107,7 +108,7 @@ namespace Empire.NPC
             // Reset the dealer field to force re-initialization
             //BlackmarketBuyer.dealer = null;
             _isUpdateCoroutineRunning = false; // Allow coroutine to be restarted
-            MelonLogger.Msg("🧹 Empire Contacts state reset complete");
+            DebugLogger.Log("🧹 Empire Contacts state reset complete");
         }
 
         /// <summary>
@@ -116,14 +117,14 @@ namespace Empire.NPC
         /// </summary>
         public static void Update()
         {
-            MelonLogger.Msg("🔄 Contacts.Update() - Starting synchronous buyer processing...");
+            DebugLogger.Log("🔄 Contacts.Update() - Starting synchronous buyer processing...");
             
             // Process buyers synchronously - this is critical for LoadQuests to work
             ProcessBuyersSynchronously();
             
             // Mark as fully processed so LoadQuests can run
             AreContactsFullyProcessed = true;
-            MelonLogger.Msg("✅ Contacts fully processed - buyers unlocked and drugs unlocked.");
+            DebugLogger.Log("✅ Contacts fully processed - buyers unlocked and drugs unlocked.");
             
             // Start async coroutine for sending intro messages (requires CustomNpcsReady)
             if (!_isUpdateCoroutineRunning)
@@ -139,11 +140,11 @@ namespace Empire.NPC
         /// </summary>
         private static void ProcessBuyersSynchronously()
         {
-            MelonLogger.Msg($"📋 Processing {Buyers.Count} buyers synchronously...");
+            DebugLogger.Log($"📋 Processing {Buyers.Count} buyers synchronously...");
             
             foreach (var buyer in Buyers.Values)
             {
-                MelonLogger.Msg("Buyer type: " + buyer.GetType().Name);
+                DebugLogger.Log("Buyer type: " + buyer.GetType().Name);
 
 				try
                 {
@@ -153,24 +154,24 @@ namespace Empire.NPC
                                      buyer.UnlockRequirements.All(req =>
                                          GetBuyer(req.Name)?.DealerSaveData.Reputation >= req.MinRep));
 
-                    MelonLogger.Msg($"Buyer: {buyer.DisplayName}, CanUnlock: {canUnlock}");
+                    DebugLogger.Log($"Buyer: {buyer.DisplayName}, CanUnlock: {canUnlock}");
 
                     if (canUnlock)
                     {
-                        MelonLogger.Msg($"✅ Dealer {buyer.DisplayName} unlock requirements met.");
+                        DebugLogger.Log($"✅ Dealer {buyer.DisplayName} unlock requirements met.");
                         
                         if (!buyer.IsUnlocked)
                         {
                             buyer.IsUnlocked = true;
-                            MelonLogger.Msg($"✅ Dealer {buyer.DisplayName} is now unlocked.");
+                            DebugLogger.Log($"✅ Dealer {buyer.DisplayName} is now unlocked.");
 
-							MelonLogger.Msg($"Buyer Debt Info: Debt is null: {buyer.Debt == null}, buyer.Debt.TotalDebt: {buyer.Debt?.TotalDebt}, DealerSaveData.DebtRemaining: {buyer.DealerSaveData.DebtRemaining}");
+							DebugLogger.Log($"Buyer Debt Info: Debt is null: {buyer.Debt == null}, buyer.Debt.TotalDebt: {buyer.Debt?.TotalDebt}, DealerSaveData.DebtRemaining: {buyer.DealerSaveData.DebtRemaining}");
 							if (buyer.Debt?.TotalDebt > 0 && !buyer.DealerSaveData.DebtInitialized)
                             {
                                 buyer.DealerSaveData.DebtRemaining = buyer.Debt.TotalDebt;
                                 buyer.DealerSaveData.DebtPaidThisWeek = 0;
                                 buyer.DealerSaveData.DebtInitialized = true;
-								MelonLogger.Msg($"💰 Dealer {buyer.DisplayName} has existing debt: {buyer.Debt.TotalDebt}");
+								DebugLogger.Log($"💰 Dealer {buyer.DisplayName} has existing debt: {buyer.Debt.TotalDebt}");
                             }
 
                             EmpirePhoneApp.DetermineDealDaysStatic(buyer);
@@ -179,13 +180,13 @@ namespace Empire.NPC
                         if (buyer.Debt != null && buyer.Debt.TotalDebt > 0 && buyer.DealerSaveData.DebtRemaining > 0)
                         {
                             buyer.DebtManager = new DebtManager(buyer);
-                            MelonLogger.Msg($"💰 Dealer {buyer.DisplayName} has debt: {buyer.Debt.TotalDebt}");
+                            DebugLogger.Log($"💰 Dealer {buyer.DisplayName} has debt: {buyer.Debt.TotalDebt}");
                         }
 
                         if (!buyer.IsInitialized)
                         {
                             buyer.IsInitialized = true;
-                            MelonLogger.Msg($"✅ Initialized dealer: {buyer.DisplayName}");
+                            DebugLogger.Log($"✅ Initialized dealer: {buyer.DisplayName}");
                         }
                         
                         // Critical: Unlock drugs so quests can be generated
@@ -193,16 +194,16 @@ namespace Empire.NPC
                     }
                     else
                     {
-                        MelonLogger.Msg($"🔒 Dealer {buyer.DisplayName} is locked (unlock requirements not met)");
+                        DebugLogger.Log($"🔒 Dealer {buyer.DisplayName} is locked (unlock requirements not met)");
                     }
                 }
                 catch (Exception ex)
                 {
-                    MelonLogger.Error($"❌ Error processing buyer {buyer.DisplayName}: {ex}");
+                    DebugLogger.LogError($"❌ Error processing buyer {buyer.DisplayName}: {ex}");
                 }
             }
             
-            MelonLogger.Msg($"📋 Finished synchronous processing of {Buyers.Count} buyers.");
+            DebugLogger.Log($"📋 Finished synchronous processing of {Buyers.Count} buyers.");
         }
 
         /// <summary>
@@ -211,18 +212,18 @@ namespace Empire.NPC
         /// </summary>
         private static System.Collections.IEnumerator SendIntroMessagesCoroutine()
         {
-            MelonLogger.Msg("📨 SendIntroMessagesCoroutine started - waiting for CustomNpcsReady...");
+            DebugLogger.Log("📨 SendIntroMessagesCoroutine started - waiting for CustomNpcsReady...");
             
             // Wait for S1API custom NPCs to be ready for messaging
             bool customNpcsReadyInitial = false;
             try
             {
                 customNpcsReadyInitial = S1API.Entities.NPC.CustomNpcsReady;
-                MelonLogger.Msg($"⏳ CustomNpcsReady initial value: {customNpcsReadyInitial}");
+                DebugLogger.Log($"⏳ CustomNpcsReady initial value: {customNpcsReadyInitial}");
             }
             catch (System.Exception ex)
             {
-                MelonLogger.Error($"❌ Failed to access NPC.CustomNpcsReady: {ex.Message}");
+                DebugLogger.LogError($"❌ Failed to access NPC.CustomNpcsReady: {ex.Message}");
                 _isUpdateCoroutineRunning = false;
                 yield break;
             }
@@ -231,7 +232,7 @@ namespace Empire.NPC
             {
                 yield return null;
             }
-            MelonLogger.Msg("✅ S1API CustomNpcsReady - Now sending intro messages...");
+            DebugLogger.Log("✅ S1API CustomNpcsReady - Now sending intro messages...");
 
 			MelonCoroutines.Start(RefreshAllMessagingIconsDelayed());
 
@@ -245,24 +246,24 @@ namespace Empire.NPC
                         try
                         {
                             buyer.SendCustomMessage(DialogueType.Intro);
-                            MelonLogger.Msg($"📨 Dealer {buyer.DisplayName} intro sent.");
+                            DebugLogger.Log($"📨 Dealer {buyer.DisplayName} intro sent.");
                             buyer.DealerSaveData.IntroDone = true;
                         }
                         catch (Exception ex)
                         {
-                            MelonLogger.Error($"❌ Failed to send intro to {buyer.DisplayName}: {ex}");
+                            DebugLogger.LogError($"❌ Failed to send intro to {buyer.DisplayName}: {ex}");
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                MelonLogger.Error($"❌ Unexpected error during intro messages: {ex}");
+                DebugLogger.LogError($"❌ Unexpected error during intro messages: {ex}");
             }
             finally
             {
                 _isUpdateCoroutineRunning = false;
-                MelonLogger.Msg("📨 SendIntroMessagesCoroutine completed.");
+                DebugLogger.Log("📨 SendIntroMessagesCoroutine completed.");
             }
         }
 
@@ -270,7 +271,7 @@ namespace Empire.NPC
 		{
 			yield return new UnityEngine.WaitForSeconds(5f);
 
-			MelonLogger.Msg("Refreshing messaging icons for all Empire NPCs...");
+			DebugLogger.Log("Refreshing messaging icons for all Empire NPCs...");
 
 			foreach (var buyer in Buyers.Values)
 			{
@@ -285,11 +286,11 @@ namespace Empire.NPC
 				}
 				catch (Exception ex)
 				{
-					MelonLogger.Warning($"Failed to refresh icon for {buyer.DisplayName}: {ex.Message}");
+					DebugLogger.LogWarning($"Failed to refresh icon for {buyer.DisplayName}: {ex.Message}");
 				}
 			}
 
-			MelonLogger.Msg("Messaging icons refresh complete.");
+			DebugLogger.Log("Messaging icons refresh complete.");
 		}
 	}
 }

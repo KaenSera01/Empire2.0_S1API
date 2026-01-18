@@ -1,7 +1,5 @@
 ﻿using Empire.DebtHelpers;
 using Empire.NPC.Data;
-using MelonLoader;
-using System;
 using System.Collections.Generic;
 
 namespace Empire.NPC.S1API_NPCs
@@ -35,8 +33,8 @@ namespace Empire.NPC.S1API_NPCs
 		public override List<List<float>> Deals { get; protected set; } =
 			new List<List<float>>
 			{
-				new List<float> { 2f, 0.85f, 8186f, 50f },
-				new List<float> { 4f, 0.7f, 10783f, 75f }
+				new List<float> { 2f, 1.15f, 4186f, 50f },
+				new List<float> { 4f, 1.0f, 5783f, 75f }
 			};
 
 		public override int RefreshCost { get; protected set; } = 500;
@@ -59,15 +57,15 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "weed",
 					UnlockRep = 0,
-					BaseDollar = 17,
+					BaseDollar = 32,
 					BaseRep = 42,
 					BaseXp = 31,
 					RepMult = 0.002f,
 					XpMult = 0.001f,
 					Qualities = new List<Quality>
 					{
-						new Quality { Type = "poor",     DollarMult = 0f, UnlockRep = 0 },
-						new Quality { Type = "standard", DollarMult = 0f, UnlockRep = 70 }
+						new Quality { Type = "poor", UnlockRep = 0 },
+						new Quality { Type = "standard", UnlockRep = 70 }
 					},
 					Effects = new List<Effect>
 					{

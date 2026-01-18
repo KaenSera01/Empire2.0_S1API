@@ -26,8 +26,8 @@ namespace Empire.NPC.S1API_NPCs
 		public override List<List<float>> Deals { get; protected set; } =
 			new List<List<float>>
 			{
-				new List<float> { 1f, 0.85f, 941f, 8f },
-				new List<float> { 2f, 0.7f, 1112f, 12f }
+				new List<float> { 1f, 1.15f, 941f, 8f },
+				new List<float> { 2f, 1.0f, 1112f, 12f }
 			};
 
 		public override int RefreshCost { get; protected set; } = 200;
@@ -50,7 +50,7 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "weed",
 					UnlockRep = 0,
-					BaseDollar = 10,
+					BaseDollar = 31,
 					BaseRep = 9,
 					BaseXp = 6,
 					RepMult = 0.002f,
@@ -58,8 +58,8 @@ namespace Empire.NPC.S1API_NPCs
 
 					Qualities = new List<Quality>
 					{
-						new Quality { Type = "poor",     DollarMult = 0f, UnlockRep = 0 },
-						new Quality { Type = "standard", DollarMult = 0f, UnlockRep = 65 }
+						new Quality { Type = "poor", UnlockRep = 0 },
+						new Quality { Type = "standard", UnlockRep = 65 }
 					},
 
 					Effects = new List<Effect>
@@ -74,15 +74,15 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "shrooms",
 					UnlockRep = 75,
-					BaseDollar = 14,
+					BaseDollar = 53,
 					BaseRep = 14,
 					BaseXp = 9,
 					RepMult = 0.001f,
 					XpMult = 0.001f,
 					Qualities = new List<Quality>
 					{
-						new Quality { Type = "poor", DollarMult = 0f, UnlockRep = 75 },
-						new Quality { Type = "standard",  DollarMult = 0f, UnlockRep = 150 }
+						new Quality { Type = "poor", UnlockRep = 75 },
+						new Quality { Type = "standard", UnlockRep = 150 }
 					},
 					Effects = new List<Effect>
 					{
