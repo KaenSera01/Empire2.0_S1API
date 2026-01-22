@@ -33,7 +33,7 @@ namespace Empire.NPC.S1API_NPCs
 			{
 				new List<float> { 3f, 1.3f, 159744f, 458f },
 				new List<float> { 4f, 1.15f, 172032f, 515f },
-				new List<float> { 5f, 0.95f, 204320f, 573f }
+				new List<float> { 5f, 1.0f, 204320f, 573f }
 			};
 
 		public override int RefreshCost { get; protected set; } = 1050;

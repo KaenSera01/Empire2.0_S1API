@@ -13,7 +13,7 @@
         <RepositoryUrl>https://github.com/pranjalchakraborty/Silkroad_S1API.git</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Nullable>enable</Nullable>
-        <Configurations>Mono;Il2Cpp;CrossCompat</Configurations>
+        <Configurations>Mono;Il2Cpp;CrossCompat;DEBUG</Configurations>
         <Platforms>AnyCPU</Platforms>
         <RootNamespace>Empire</RootNamespace>
     </PropertyGroup>
@@ -32,6 +32,11 @@
 		<!-- CrossCompat uses Mono assemblies but without Assembly-CSharp for cross-compatibility -->
 		<!-- Uses properties from local.build.props, but MelonLoader path may need to be net35 instead of net6 -->
 		<CrossCompatMelonLoaderPath Condition="'$(CrossCompatMelonLoaderPath)'==''">$(LocalMonoDeploymentPath)\MelonLoader\net6</CrossCompatMelonLoaderPath>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='DEBUG'">
+	  <DefineConstants>CROSS_COMPAT</DefineConstants>
+	  <AssemblyName>Empire-S1API</AssemblyName>
+	  <CrossCompatMelonLoaderPath Condition="'$(CrossCompatMelonLoaderPath)'==''">$(LocalMonoDeploymentPath)\MelonLoader\net6</CrossCompatMelonLoaderPath>
 	</PropertyGroup>
 	
     <!-- IL2CPP Specific Deps -->
@@ -152,6 +157,35 @@
         <Reference Include="UnityEngine.InputLegacyModule">
             <HintPath>$(MonoAssembliesPath)\UnityEngine.InputLegacyModule.dll</HintPath>
         </Reference>
+    </ItemGroup>
+    <ItemGroup Condition="'$(Configuration)'=='DEBUG'">
+      <Reference Include="0Harmony">
+        <HintPath>$(CrossCompatMelonLoaderPath)\0Harmony.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine">
+        <HintPath>$(MonoAssembliesPath)\UnityEngine.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.CoreModule">
+        <HintPath>$(MonoAssembliesPath)\UnityEngine.CoreModule.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.UI">
+        <HintPath>$(MonoAssembliesPath)\UnityEngine.UI.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.UIModule">
+        <HintPath>$(MonoAssembliesPath)\UnityEngine.UIModule.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.JSONSerializeModule">
+        <HintPath>$(MonoAssembliesPath)\UnityEngine.JSONSerializeModule.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.TextRenderingModule">
+        <HintPath>$(MonoAssembliesPath)\UnityEngine.TextRenderingModule.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.ImageConversionModule">
+        <HintPath>$(MonoAssembliesPath)\UnityEngine.ImageConversionModule.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.InputLegacyModule">
+        <HintPath>$(MonoAssembliesPath)\UnityEngine.InputLegacyModule.dll</HintPath>
+      </Reference>
     </ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="NPC\S1API_NPCs\Icons\*.png" />

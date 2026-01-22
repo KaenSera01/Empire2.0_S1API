@@ -1,24 +1,15 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using MelonLoader;
-using MelonLoader.Utils;
-using Newtonsoft.Json;
-using S1API.Logging;
-using S1API.Entities.NPCs;
 using S1API.GameTime;
-using S1API.Money;
-using S1API.Entities;
 using S1API.Console;
 using UnityEngine;
 using Console = S1API.Console;
-using Empire.NPC;
 using Empire.NPC.S1API_NPCs;
+using Empire.Debug;
 
 namespace Empire.Reward
 {
-
     public class RewardManager
     {
         EmpireNPC buyer;
@@ -113,20 +104,20 @@ namespace Empire.Reward
             
             if (!isRewardAvailable)
             {
-                MelonLogger.Error("Reward is not available right now.");
+                DebugLogger.LogError("Reward is not available right now.");
                 return;
             }
             if (buyer.Reward == null || buyer.Reward.Args == null || buyer.Reward.Args.Count == 0 || string.IsNullOrEmpty(buyer.Reward.Type))
             {
-                MelonLogger.Error("No reward available from this contact.");
+                DebugLogger.LogError("No reward available from this contact.");
                 return;
             }
             if (buyer.Reward.unlockRep > 0 && buyer.DealerSaveData.Reputation < buyer.Reward.unlockRep)
             {
-                MelonLogger.Error($"Insufficient reputation to claim reward. Required: {buyer.Reward.unlockRep}, Current: {buyer.DealerSaveData.Reputation}");
+                DebugLogger.LogError($"Insufficient reputation to claim reward. Required: {buyer.Reward.unlockRep}, Current: {buyer.DealerSaveData.Reputation}");
                 return;
             }
-            MelonLoader.MelonLogger.Msg($"Claiming reward: {buyer.Reward.Type} with args: {string.Join(", ", buyer.Reward.Args)}");
+            DebugLogger.Log($"Claiming reward: {buyer.Reward.Type} with args: {string.Join(", ", buyer.Reward.Args)}");
             // Deduct reputation cost from current reputation
             buyer.DealerSaveData.Reputation -= buyer.Reward.RepCost;
             isRewardAvailable = false;
@@ -136,7 +127,7 @@ namespace Empire.Reward
 
         private System.Collections.IEnumerator ExecuteRewardAfterDelay()
         {
-            MelonLogger.Msg("Reward execution will start in 10 seconds...");
+            DebugLogger.Log("Reward execution will start in 10 seconds...");
             yield return new WaitForSeconds(10); // Wait for 10 seconds
 
             string rewardType = buyer.Reward.Type.ToLower();
@@ -159,33 +150,33 @@ namespace Empire.Reward
                             // Replace "bindonce" with "bind"
                             args[bindonceIdx] = "bind";
                             string filteredCmd = string.Join(" ", args);
-                            MelonLogger.Msg($"Executing console command: {filteredCmd}");
+                            DebugLogger.Log($"Executing console command: {filteredCmd}");
                             ConsoleHelper.Submit(filteredCmd);
                             MelonCoroutines.Start(WaitForBindOnceKey(key));
                         }
                         else
                         {
-                            MelonLogger.Msg($"Executing console command: {cmd}");
+                            DebugLogger.Log($"Executing console command: {cmd}");
                             ConsoleHelper.Submit(cmd);
                         }
                     }
                 }
             }
 
-            MelonLogger.Msg("Reward executed successfully.");
+            DebugLogger.Log("Reward executed successfully.");
         }
 
         private System.Collections.IEnumerator WaitForBindOnceKey(string key)
         {
             if (!Enum.TryParse<KeyCode>(key, true, out var keyCode))
             {
-                MelonLogger.Error($"Invalid key specified for bindonce: {key}");
+                DebugLogger.LogError($"Invalid key specified for bindonce: {key}");
                 yield break;
             }
-            MelonLogger.Msg($"Waiting for key press: {keyCode}");
+            DebugLogger.Log($"Waiting for key press: {keyCode}");
             while (!UnityEngine.Input.GetKeyDown(keyCode))
                 yield return null;
-            MelonLogger.Msg($"Key {keyCode} pressed, unbinding...");
+            DebugLogger.Log($"Key {keyCode} pressed, unbinding...");
             Console.ConsoleHelper.Submit($"unbind {key}");
         }
     }

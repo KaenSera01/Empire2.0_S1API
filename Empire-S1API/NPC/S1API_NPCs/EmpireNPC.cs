@@ -3,7 +3,6 @@ using Empire.NPC.Data;
 using Empire.NPC.Data.Enums;
 using Empire.NPC.SaveData;
 using Empire.Reward;
-using Empire.Utilities;
 using Empire.Utilities.EffectHelpers;
 using Empire.Utilities.QualityHelpers;
 using MelonLoader;
@@ -14,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Empire.Debug;
 
 namespace Empire.NPC.S1API_NPCs
 {
@@ -66,7 +66,7 @@ namespace Empire.NPC.S1API_NPCs
 			}
 			catch (Exception e)
 			{
-				MelonLogger.Error($"❌ Error loading NPC sprite for {Image}: {e}");
+				DebugLogger.LogError($"❌ Error loading NPC sprite for {Image}: {e}");
 				_npcSprite = EmpireResourceLoader.LoadEmbeddedIcon("fallback-dealer.png");
 			}
 
@@ -83,11 +83,11 @@ namespace Empire.NPC.S1API_NPCs
 	{
 		base.OnCreated();
 		OnEmpireCreated();
-		MelonLogger.Msg($"🆕 Created Empire NPC: {DisplayName} (ID: {DealerId})");
+		DebugLogger.Log($"🆕 Created Empire NPC: {DisplayName} (ID: {DealerId})");
 
 		RewardManager = new RewardManager(this);
 		Contacts.RegisterEmpireNPC(this);
-		MelonLogger.Msg($"Registered Empire NPC '{DisplayName}' with Contacts.");
+		DebugLogger.Log($"Registered Empire NPC '{DisplayName}' with Contacts.");
 		
 		// Send intro message in OnCreated instead of OnLoaded
 		// This ensures it works both on first creation AND after save/load
@@ -104,13 +104,13 @@ namespace Empire.NPC.S1API_NPCs
 		OnEmpireLoaded();
 
 		// Intro message moved to OnCreated to fix save/load issues
-		MelonLogger.Msg($"📂 Loaded Empire NPC: {DisplayName} (ID: {DealerId})");			
+		DebugLogger.Log($"📂 Loaded Empire NPC: {DisplayName} (ID: {DealerId})");			
 	}
 
 		public void IncreaseCompletedDeals(int amount)
 		{
 			_DealerData.DealsCompleted += amount;
-			MelonLogger.Msg($"✅ {DisplayName}'s completed deals increased by {amount}. Total Completed Deals: {DealerSaveData.DealsCompleted}");
+			DebugLogger.Log($"✅ {DisplayName}'s completed deals increased by {amount}. Total Completed Deals: {DealerSaveData.DealsCompleted}");
 		}
 		public void GiveReputation(int amount)
 		{
@@ -120,7 +120,7 @@ namespace Empire.NPC.S1API_NPCs
 			{
 				_DealerData.Reputation = 1;
 			}
-			MelonLogger.Msg($"✅ {DisplayName}'s reputation increased by {amount}. New Reputation: {DealerSaveData.Reputation}");
+			DebugLogger.Log($"✅ {DisplayName}'s reputation increased by {amount}. New Reputation: {DealerSaveData.Reputation}");
 		}
 
 		//Send the message to the player using the phone app or return the message string only if returnMessage is true
@@ -133,7 +133,7 @@ namespace Empire.NPC.S1API_NPCs
 			// If messages is null or empty, log and fallback
 			//if (messages == null || messages.Count == 0)
 			//{
-			//	MelonLogger.Msg($"❌ Message type '{messageType}' not found in Dialogue or contains no lines.");
+			//	DebugLogger.Log($"❌ Message type '{messageType}' not found in Dialogue or contains no lines.");
 			//	if (returnMessage)
 			//	{
 			//		return messageType;
@@ -220,7 +220,7 @@ namespace Empire.NPC.S1API_NPCs
 			// Check FIRST, log SECOND - Fix for null/empty list access bug
 			if (messages == null || messages.Count == 0)
 			{
-				MelonLogger.Warning($"❌ DialogueType '{type}' has no lines for {DisplayName}.");
+				DebugLogger.LogWarning($"❌ DialogueType '{type}' has no lines for {DisplayName}.");
 				if (returnMessage)
 					return type.ToString();
 
@@ -228,7 +228,7 @@ namespace Empire.NPC.S1API_NPCs
 				return null;
 			}
 
-			MelonLogger.Msg($"Retrieved {messages.Count} dialogue lines for {type} from {DisplayName}");
+			DebugLogger.Log($"Retrieved {messages.Count} dialogue lines for {type} from {DisplayName}");
 
 			// Pick a line
 			string line = (index < 0 || index >= messages.Count)
@@ -269,7 +269,7 @@ namespace Empire.NPC.S1API_NPCs
 					formatted += "\nWe'll take that delivery any time!";
 			}
 
-			MelonLogger.Msg($"Sending? returnMessage={returnMessage}, formatted='{formatted}'");
+			DebugLogger.Log($"Sending? returnMessage={returnMessage}, formatted='{formatted}'");
 
 			if (returnMessage)
 				return formatted;
@@ -287,7 +287,7 @@ namespace Empire.NPC.S1API_NPCs
 		{
 			if (string.IsNullOrWhiteSpace(message))
 			{
-				MelonLogger.Warning($"[{DisplayName}] Attempted to send empty message. Context: {fallbackContext}");
+				DebugLogger.LogWarning($"[{DisplayName}] Attempted to send empty message. Context: {fallbackContext}");
 				return;
 			}
 			SendTextMessage(message);
@@ -357,12 +357,12 @@ namespace Empire.NPC.S1API_NPCs
 			if (_DealerData.ShippingTier < Shippings.Count - 1)
 			{
 				_DealerData.ShippingTier++;
-				MelonLogger.Msg($"✅ Shipping upgraded to tier {_DealerData.ShippingTier}.");
+				DebugLogger.Log($"✅ Shipping upgraded to tier {_DealerData.ShippingTier}.");
 				return true;
 			}
 			else
 			{
-				MelonLogger.Msg($"⚠️ Shipping already at max tier {_DealerData.ShippingTier}.");
+				DebugLogger.Log($"⚠️ Shipping already at max tier {_DealerData.ShippingTier}.");
 				return false;
 			}
 		}
@@ -396,12 +396,12 @@ namespace Empire.NPC.S1API_NPCs
 			DealerSaveData.UnlockedDrugs = validDrugs;
 
 			// Log the unlocked drugs for debugging
-			MelonLogger.Msg($"   Found {validDrugs.Count} drug(s) unlocked for dealer '{DisplayName}' at rep {DealerSaveData.Reputation}.");
+			DebugLogger.Log($"   Found {validDrugs.Count} drug(s) unlocked for dealer '{DisplayName}' at rep {DealerSaveData.Reputation}.");
 			foreach (var drug in validDrugs)
 			{
-				MelonLogger.Msg($"      Drug: {drug.Type} | UnlockRep: {drug.UnlockRep}");
-				MelonLogger.Msg($"         Unlocked Qualities: {string.Join(", ", drug.Qualities.Select(q => q.Type))}");
-				MelonLogger.Msg($"         Unlocked Effects: {string.Join(", ", drug.Effects.Select(e => e.Name))}");
+				DebugLogger.Log($"      Drug: {drug.Type} | UnlockRep: {drug.UnlockRep}");
+				DebugLogger.Log($"         Unlocked Qualities: {string.Join(", ", drug.Qualities.Select(q => q.Type))}");
+				DebugLogger.Log($"         Unlocked Effects: {string.Join(", ", drug.Effects.Select(e => e.Name))}");
 			}
 		}
 
@@ -411,11 +411,11 @@ namespace Empire.NPC.S1API_NPCs
 
 			if (d == null)
 			{
-				MelonLogger.Msg($"❌ EmpireDialogue is null for dealer {DisplayName}.");
+				DebugLogger.Log($"❌ EmpireDialogue is null for dealer {DisplayName}.");
 				return null;
 			}
 
-			MelonLogger.Msg($"[GetDialogueLines] Getting dialogue lines for {type} from dealer {DisplayName}.");
+			DebugLogger.Log($"[GetDialogueLines] Getting dialogue lines for {type} from dealer {DisplayName}.");
 
 			return type switch
 			{

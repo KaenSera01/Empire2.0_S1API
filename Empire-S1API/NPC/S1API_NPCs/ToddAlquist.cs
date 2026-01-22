@@ -54,7 +54,7 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "meth",
 					UnlockRep = 0,
-					BaseDollar = 37,
+					BaseDollar = 41,
 					BaseRep = 85,
 					BaseXp = 71,
 					RepMult = 0.002f,

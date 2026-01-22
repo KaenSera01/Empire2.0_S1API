@@ -29,8 +29,8 @@ namespace Empire.NPC.S1API_NPCs
 		public override List<List<float>> Deals { get; protected set; } =
 			new List<List<float>>
 			{
-				new List<float> { 2f, 0.85f, 22842f, 65f },
-				new List<float> { 4f, 0.7f, 33036f, 88f }
+				new List<float> { 2f, 1.2f, 22842f, 65f },
+				new List<float> { 4f, 1.0f, 33036f, 88f }
 			};
 
 		public override int RefreshCost { get; protected set; } = 500;
@@ -54,7 +54,7 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "meth",
 					UnlockRep = 0,
-					BaseDollar = 40,
+					BaseDollar = 44,
 					BaseRep = 50,
 					BaseXp = 39,
 					RepMult = 0.002f,

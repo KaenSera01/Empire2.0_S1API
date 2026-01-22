@@ -32,9 +32,9 @@ namespace Empire.NPC.S1API_NPCs
 		public override List<List<float>> Deals { get; protected set; } =
 			new List<List<float>>
 			{
-				new List<float> { 2f, 1.0f, 13816f, 75f },
-				new List<float> { 3f, 0.9f, 15941f, 83f },
-				new List<float> { 4f, 0.8f, 18067f, 91f }
+				new List<float> { 2f, 1.2f, 13816f, 75f },
+				new List<float> { 3f, 1.1f, 15941f, 83f },
+				new List<float> { 4f, 1f, 18067f, 91f }
 			};
 
 		public override int RefreshCost { get; protected set; } = 1000;
