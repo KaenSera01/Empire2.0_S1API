@@ -6,7 +6,7 @@ using Empire.Phone;
 using MelonLoader;
 using S1API.GameTime;
 
-[assembly: MelonInfo(typeof(EmpireMod), "Empire (Forked by Kaen01)", "2.0", "Aracor")]
+[assembly: MelonInfo(typeof(EmpireMod), "Empire (Forked by Kaen01)", "2.2.0", "Aracor")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace Empire
