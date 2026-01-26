@@ -12,9 +12,11 @@ namespace Empire.Debug
 
 	public static class DebugLogger
 	{
+		public static bool DebugModeEnabled => EmpireMod.DebugMode.Value;
+
 		public static void Log(string message, string category = "")
 		{
-			if (!EmpireMod.DebugMode.Value)
+			if (!DebugModeEnabled)
 				return;
 
 			string prefix = GetPrefix(LogLevel.Info, category);
@@ -23,7 +25,7 @@ namespace Empire.Debug
 
 		public static void LogWarning(string message, string category = "")
 		{
-			if (!EmpireMod.DebugMode.Value)
+			if (!DebugModeEnabled)
 				return; 
 			
 			string prefix = GetPrefix(LogLevel.Warning, category);
@@ -32,7 +34,7 @@ namespace Empire.Debug
 
 		public static void LogError(string message, string category = "")
 		{
-			if (!EmpireMod.DebugMode.Value)
+			if (!DebugModeEnabled)
 				return; 
 			
 			string prefix = GetPrefix(LogLevel.Error, category);
@@ -41,7 +43,7 @@ namespace Empire.Debug
 
 		public static void LogDebug(string message, string category = "")
 		{
-			if (!EmpireMod.DebugMode.Value)
+			if (!DebugModeEnabled)
 				return; 
 			
 			string prefix = GetPrefix(LogLevel.Debug, category);
