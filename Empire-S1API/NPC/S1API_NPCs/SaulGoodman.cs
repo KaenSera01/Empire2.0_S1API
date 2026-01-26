@@ -29,8 +29,8 @@ namespace Empire.NPC.S1API_NPCs
 		public override List<List<float>> Deals { get; protected set; } =
 			new List<List<float>>
 			{
-				new List<float> { 2f, 0.85f, 6076f, 20f },
-				new List<float> { 3f, 0.7f, 8022f, 30f }
+				new List<float> { 2f, 1.2f, 6076f, 20f },
+				new List<float> { 3f, 1f, 8022f, 30f }
 			};
 
 		public override int RefreshCost { get; protected set; } = 500;
@@ -54,7 +54,7 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "weed",
 					UnlockRep = 0,
-					BaseDollar = 17,
+					BaseDollar = 21,
 					BaseRep = 26,
 					BaseXp = 17,
 					RepMult = 0.004f,
@@ -81,7 +81,7 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "cocaine",
 					UnlockRep = 90,
-					BaseDollar = 71,
+					BaseDollar = 77,
 					BaseRep = 17,
 					BaseXp = 18,
 					RepMult = 0.001f,
@@ -112,7 +112,7 @@ namespace Empire.NPC.S1API_NPCs
 					Name = "Legal Document Courier",
 					Cost = 0,
 					UnlockRep = 0,
-					MinAmount = 1,
+					MinAmount = 3,
 					StepAmount = 1,
 					MaxAmount = 15,
 					DealModifier = new List<float> { 1f, 1f, 1f, 1f }

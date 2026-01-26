@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
-
 
 namespace Empire.NPC.Data
 {

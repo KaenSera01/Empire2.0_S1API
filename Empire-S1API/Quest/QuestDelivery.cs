@@ -19,8 +19,8 @@ using Empire.NPC.S1API_NPCs;
 using Empire.Quest.Data;
 using S1Quest = S1API.Quests.Quest;
 using Empire.Utilities.QualityHelpers;
-using Empire.Utilities;
 using Empire.NPC.Data.Enums;
+using Empire.Debug;
 
 namespace Empire.Quest
 {
@@ -41,7 +41,7 @@ namespace Empire.Quest
         public QuestEntry GetRewardEntry() => rewardEntry;
         public void ForceCancel()
         {
-            MelonLogger.Msg("🚫 QuestDelivery.ForceCancel() called.");
+            DebugLogger.Log("🚫 QuestDelivery.ForceCancel() called.");
 
             GiveReward("Failed");
             if (deliveryEntry != null && deliveryEntry.State != QuestState.Completed)
@@ -55,9 +55,9 @@ namespace Empire.Quest
 
         public void Cleanup()
         {
-            MelonLogger.Msg("🚫 QuestDelivery.Cleanup() called.");
+            DebugLogger.Log("🚫 QuestDelivery.Cleanup() called.");
             CleanupSubscriptions();
-            MelonLogger.Msg("Calling");
+            DebugLogger.Log("Calling");
             Fail();
             QuestActive = false;
             Active = null; // 👈 Reset after cancel
@@ -67,9 +67,9 @@ namespace Empire.Quest
         {
             
             // Reduce the quest time by 1 day
-            MelonLogger.Msg($"ExpireCountdown called. DealTime before: {Data.DealTime}");
+            DebugLogger.Log($"ExpireCountdown called. DealTime before: {Data.DealTime}");
             Data.DealTime -= 1;
-            MelonLogger.Msg($"DealTime after: {Data.DealTime}");
+            DebugLogger.Log($"DealTime after: {Data.DealTime}");
             // Update the delivery entry description with the new time
             deliveryEntry.Title = $"{Data.Task} at the {Colorize(deliveryDrop.Name, DropNameColor)}. Expiry: {Colorize(Data.DealTime.ToString(), DealTimeColor)} Days";
 
@@ -104,18 +104,18 @@ namespace Empire.Quest
 
         protected override void OnLoaded()
         {
-            MelonLogger.Msg("Quest OnLoaded called.");
+            DebugLogger.Log("Quest OnLoaded called.");
             base.OnLoaded();
             MelonCoroutines.Start(WaitForBuyerAndLoad());
             
-            MelonLogger.Msg($"Quest OnLoaded() done.");
+            DebugLogger.Log($"Quest OnLoaded() done.");
         }
 
         private System.Collections.IEnumerator WaitForBuyerAndLoad()
         {
             float timeout = 5f;
             float waited = 0f;
-            MelonLogger.Msg("Quest-WaitForBuyerAndLoad-Waiting for buyer to be initialized...");
+            DebugLogger.Log("Quest-WaitForBuyerAndLoad-Waiting for buyer to be initialized...");
             // while (Contacts.Buyers == null OR For all key value pairs in Contacts.Buyers, check if the value.IsInitialized is false for at least one of them OR waited < timeqout)
             while (!Contacts.IsInitialized && waited < timeout)
             {
@@ -124,16 +124,16 @@ namespace Empire.Quest
             }
             if (!Contacts.IsInitialized)
             {
-                MelonLogger.Warning("⚠️ Buyer NPCs still not initialized after timeout. Skipping status sync.");
+                DebugLogger.LogWarning("⚠️ Buyer NPCs still not initialized after timeout. Skipping status sync.");
                 yield break;
             }
         }
 
         protected override void OnCreated()
         {
-            MelonLogger.Msg("Quest OnCreated called.");
+            DebugLogger.Log("Quest OnCreated called.");
             base.OnCreated();
-            MelonLogger.Msg($"QuestOnCreated() done.");
+            DebugLogger.Log($"QuestOnCreated() done.");
             
             // Ensure any previously active QuestDelivery cleans up its subscriptions
             if (Active != null && Active != this)
@@ -150,7 +150,7 @@ namespace Empire.Quest
                 var drops = DeadDropManager.All?.ToList();
                 if (drops == null || drops.Count < 1)
                 {
-                    MelonLogger.Error("❌ Not enough dead drops to assign delivery/reward.");
+                    DebugLogger.LogError("❌ Not enough dead drops to assign delivery/reward.");
                     return;
                 }
 
@@ -167,23 +167,23 @@ namespace Empire.Quest
             deliveryEntry.Begin();
 
             rewardEntry = AddEntry($"Wait for the payment to arrive.");
-            MelonLogger.Msg("📦 Setting rewardEntry state to Inactive.");
+            DebugLogger.Log("📦 Setting rewardEntry state to Inactive.");
             rewardEntry.SetState(QuestState.Inactive);
 
             // Ensure we don't add duplicate subscriptions. Remove any existing handlers first.
             if (deliveryDrop?.Storage != null)
             {
-                MelonLogger.Msg($"Subscribing CheckDelivery for quest {Data.DealerName} on storage {deliveryDrop.GUID}");
+                DebugLogger.Log($"Subscribing CheckDelivery for quest {Data.DealerName} on storage {deliveryDrop.GUID}");
                 subscribedStorage = deliveryDrop.Storage;
                 subscribedStorage.OnClosed -= CheckDelivery;
                 subscribedStorage.OnClosed += CheckDelivery;
             }
             else
             {
-                MelonLogger.Warning("⚠️ deliveryDrop.Storage is null when attempting to subscribe to OnClosed.");
+                DebugLogger.LogWarning("⚠️ deliveryDrop.Storage is null when attempting to subscribe to OnClosed.");
             }
 
-            MelonLogger.Msg("📦 QuestDelivery started with drop locations assigned.");
+            DebugLogger.Log("📦 QuestDelivery started with drop locations assigned.");
         }
 
         private uint PackageAmount(string packaging)
@@ -205,7 +205,7 @@ namespace Empire.Quest
         {
             if (buyer == null)
             {
-                MelonLogger.Warning($"Cannot send {type} message: buyer is null. Context: {context}");
+                DebugLogger.LogWarning($"Cannot send {type} message: buyer is null. Context: {context}");
                 return;
             }
             
@@ -216,7 +216,7 @@ namespace Empire.Quest
             }
             catch (Exception ex)
             {
-                MelonLogger.Error($"Failed to send {type} message from {buyer.DisplayName}: {ex.Message}");
+                DebugLogger.LogError($"Failed to send {type} message from {buyer.DisplayName}: {ex.Message}");
             }
         }
 
@@ -227,13 +227,13 @@ namespace Empire.Quest
         {
             if (buyer == null)
             {
-                MelonLogger.Warning($"Cannot send custom message: buyer is null. Context: {context}");
+                DebugLogger.LogWarning($"Cannot send custom message: buyer is null. Context: {context}");
                 return;
             }
             
             if (string.IsNullOrWhiteSpace(message))
             {
-                MelonLogger.Warning($"Cannot send empty message from {buyer.DisplayName}. Context: {context}");
+                DebugLogger.LogWarning($"Cannot send empty message from {buyer.DisplayName}. Context: {context}");
                 return;
             }
             
@@ -243,7 +243,7 @@ namespace Empire.Quest
             }
             catch (Exception ex)
             {
-                MelonLogger.Error($"Failed to send custom message from {buyer.DisplayName}: {ex.Message}");
+                DebugLogger.LogError($"Failed to send custom message from {buyer.DisplayName}: {ex.Message}");
             }
         }
 
@@ -251,7 +251,7 @@ namespace Empire.Quest
         {
             if (!QuestActive || Active != this)
             {
-                MelonLogger.Msg("CheckDelivery ignored: quest not active or not current.");
+                DebugLogger.Log("CheckDelivery ignored: quest not active or not current.");
                 // Proactively detach in case cleanup did not run yet for this instance
                 if (subscribedStorage != null)
                 {
@@ -264,18 +264,18 @@ namespace Empire.Quest
                 }
                 return;
             }
-            MelonLogger.Msg("CheckDelivery called.");
+            DebugLogger.Log("CheckDelivery called.");
             // Add null checks
             if (deliveryDrop?.Storage?.Slots == null)
             {
-                MelonLogger.Error("❌ Storage or slots are null in CheckDelivery");
+                DebugLogger.LogError("❌ Storage or slots are null in CheckDelivery");
                 return;
             }
-            MelonLogger.Msg($"Expecting ProductID: {Data.ProductID}, RequiredAmount: {Data.RequiredAmount}");
+            DebugLogger.Log($"Expecting ProductID: {Data.ProductID}, RequiredAmount: {Data.RequiredAmount}");
             // If buyer.CurfewDeal is true and TimeManager.IsNight is false, return and Log
             if (buyer != null && buyer.CurfewDeal && !TimeManager.IsNight)
             {
-                MelonLogger.Msg("❌ Curfew deal is true but it is not night. Cannot deliver.");
+                DebugLogger.Log("❌ Curfew deal is true but it is not night. Cannot deliver.");
                 //ToDO - Shift to JSON
                 SendBuyerCustomMessage("Deliveries only after Curfew.", "curfew check");
                 return;
@@ -286,7 +286,7 @@ namespace Empire.Quest
                 // Add null check for slot
                 if (slot?.ItemInstance == null)
                 {
-                    MelonLogger.Warning("⚠️ Encountered null slot or item instance, skipping...");
+                    DebugLogger.LogWarning("⚠️ Encountered null slot or item instance, skipping...");
                     continue;
                 }
                 bool isProductInstance = slot.ItemInstance is ProductInstance;
@@ -295,25 +295,28 @@ namespace Empire.Quest
                 if (item == null)
                 {
                     SendBuyerCustomMessage("This is not even a product...", "invalid product instance");
-                    MelonLogger.Warning("⚠️ Item is not a ProductInstance, skipping...");
+                    DebugLogger.LogWarning("⚠️ Item is not a ProductInstance, skipping...");
                     continue;
                 }
-                MelonLogger.Msg($"Slot: {item.Definition?.Category} - {slot.Quantity} package - {item.Definition?.Name} ");
+                DebugLogger.Log($"Slot: {item.Definition?.Category} - {slot.Quantity} package - {item.Definition?.Name} ");
                 string slotProductID = isProductInstance ? item.Definition?.Name : "null";
                 string packaging = isProductInstance ? item.AppliedPackaging?.Name : "null";
                 int quantity = slot.Quantity;
                 // Add null check for Data.NecessaryEffects
-                if (Data?.NecessaryEffects == null)
-                {
-                    MelonLogger.Error("❌ NecessaryEffects is null");
-                    return;
-                }
+                //if (!EmpireMod.DisableNecessaryEffects.Value)
+                //{
+                    if (Data?.NecessaryEffects == null)
+                    {
+                        DebugLogger.LogError("❌ NecessaryEffects is null");
+                        return;
+                    }
+                //}
                 ProductDefinition productDef = ProductManager.DiscoveredProducts.FirstOrDefault(p => p.ID == item?.Definition.ID);
                 var productType = GetProductType(productDef);
 
                 if (productType != Data.ProductID)
                 {
-                    MelonLogger.Error($"❌ Product type mismatch: {productType} != {Data.ProductID}");
+                    DebugLogger.LogError($"❌ Product type mismatch: {productType} != {Data.ProductID}");
                     SendBuyerCustomMessage("This is not the drug type I ordered.", "product type mismatch");
                     continue;
                 }
@@ -328,7 +331,7 @@ namespace Empire.Quest
                 else if (productDef is ShroomDefinition shroom)
                     props = shroom.GetProperties();
 
-                MelonLogger.Msg($"count : {props.Count}");
+                DebugLogger.Log($"count : {props.Count}");
                 var properties = new List<string>();
                 if (props.Count > 0)
                 {
@@ -338,40 +341,50 @@ namespace Empire.Quest
                         properties.Add(prop.name.Trim().ToLower());
                     }
                 }
-                MelonLogger.Msg($"Item Properties: {string.Join(", ", properties)}");
+                DebugLogger.Log($"Item Properties: {string.Join(", ", properties)}");
                 // Melonlogger the Data.NecessaryEffects and OptionalEffects
-                MelonLogger.Msg($"NecessaryEffects: {string.Join(", ", Data.NecessaryEffects)}");
-                MelonLogger.Msg($"OptionalEffects: {string.Join(", ", Data.OptionalEffects)}");
+                DebugLogger.Log($"NecessaryEffects: {string.Join(", ", Data.NecessaryEffects)}");
+                DebugLogger.Log($"OptionalEffects: {string.Join(", ", Data.OptionalEffects)}");
 
                 if (!Data.NecessaryEffects.All(effect => properties.Contains(effect.Trim().ToLower())))
                 {
-                    MelonLogger.Error($"❌ Effect type mismatch"); 
+                    DebugLogger.LogError($"❌ Effect type mismatch"); 
                     //ToDO - Shift to JSON
                     SendBuyerCustomMessage("All the required necessary effects are not present.", "missing required effects");
                     continue;
                 }
                 var quality = item?.Quality ?? 0;
-                MelonLogger.Msg($"Quality: {quality}");
+                DebugLogger.Log($"Quality: {quality}");
                 // convert the quality enum to a lower trim quality string
                 string qualityString = quality.ToString().ToLower().Trim();
                 int qualityNumber = GetQualityNumber(qualityString);
                 // Check if the quality is within the required range after converting quality enum to string.trim.lower
-                if (qualityNumber < GetQualityNumber(Data.Quality))
+                var exceedQualityNumber = qualityNumber - GetQualityNumber(Data.Quality);
+                float exceedQualityBonusMult = 0f;
+
+                if (exceedQualityNumber < 0)
                 {
-                    MelonLogger.Error($"❌ Quality mismatch: {quality} < {GetQualityNumber(Data.Quality)} or {quality} > {GetQualityNumber(Data.Quality)}");
+                    DebugLogger.LogError($"❌ Quality mismatch: {quality} < {GetQualityNumber(Data.Quality)} or {quality} > {GetQualityNumber(Data.Quality)}");
                     //ToDO - Shift to JSON
                     SendBuyerCustomMessage("The quality of the product is worse than what I ordered.", "quality too low");
                     continue;
                 }
+                else
+                {
+					// Log quality match or exceeds
+					exceedQualityBonusMult = exceedQualityNumber * EmpireMod.ExceedQualityBonus.Value;
+                    DebugLogger.Log($"✅ Quality match or exceeds. ExceedQualityNumber: {exceedQualityNumber}, BonusMult: {exceedQualityBonusMult}");
+				}
+				
                 if (isProductInstance)
                 {
                     uint total = (uint)(quantity * PackageAmount(packaging));
                     if (total <= Data.RequiredAmount)
                     {
                         slot.AddQuantity(-quantity);
-                        UpdateReward(total, productDef, properties);
+                        UpdateReward(total, productDef, properties, exceedQualityBonusMult);
                         Data.RequiredAmount -= total;
-                        MelonLogger.Msg($"✅ Delivered {total}x {slotProductID} to the stash. Remaining: {Data.RequiredAmount}. Reward now: {Data.Reward}");
+                        DebugLogger.Log($"✅ Delivered {total}x {slotProductID} to the stash. Remaining: {Data.RequiredAmount}. Reward now: {Data.Reward}");
                     }
                     else
                     {
@@ -379,9 +392,9 @@ namespace Empire.Quest
                         int toRemove = (int)Math.Ceiling((float)Data.RequiredAmount / PackageAmount(packaging));
                         toRemove = Math.Min(toRemove, slot.Quantity);
                         slot.AddQuantity(-toRemove);
-                        UpdateReward(Data.RequiredAmount, productDef, properties);
+                        UpdateReward(Data.RequiredAmount, productDef, properties, exceedQualityBonusMult);
                         Data.RequiredAmount = 0;
-                        MelonLogger.Msg($"✅ Delivered {total}x {slotProductID} to the stash. Remaining: {Data.RequiredAmount}. Reward now: {Data.Reward}");
+                        DebugLogger.Log($"✅ Delivered {total}x {slotProductID} to the stash. Remaining: {Data.RequiredAmount}. Reward now: {Data.Reward}");
                         break;
                     }
                 }
@@ -389,7 +402,7 @@ namespace Empire.Quest
             if (Data.RequiredAmount <= 0 && deliveryEntry.State==QuestState.Active)
             {
                 SendBuyerMessage(DialogueType.Success, "delivery complete");
-                MelonLogger.Msg("❌ No required amount to deliver. Quest done.");
+                DebugLogger.Log("❌ No required amount to deliver. Quest done.");
                 
                 deliveryEntry.Complete();
                 rewardEntry.SetState(QuestState.Active);
@@ -399,7 +412,7 @@ namespace Empire.Quest
             else if (Data.RequiredAmount > 0)
             {
                 SendBuyerMessage(DialogueType.Incomplete, "partial delivery");
-                MelonLogger.Msg($"Continue delivery. Remaining amount: {Data.RequiredAmount}");
+                DebugLogger.Log($"Continue delivery. Remaining amount: {Data.RequiredAmount}");
             }
         }
 
@@ -433,7 +446,7 @@ namespace Empire.Quest
 		{
 			if (string.IsNullOrWhiteSpace(quality))
 			{
-				MelonLogger.Error("❌ Quality is null or empty.");
+				DebugLogger.LogError("❌ Quality is null or empty.");
 				return -1;
 			}
 
@@ -443,7 +456,7 @@ namespace Empire.Quest
 			// Try lookup in registry
 			if (!QualityRegistry.ByName.TryGetValue(key, out var info))
 			{
-				MelonLogger.Error($"❌ Quality not found: {quality}");
+				DebugLogger.LogError($"❌ Quality not found: {quality}");
 				return -1;
 			}
 
@@ -452,12 +465,12 @@ namespace Empire.Quest
 		}
 
 
-		private void UpdateReward(uint total, ProductDefinition? productDef, List<string> properties)
+		private void UpdateReward(uint total, ProductDefinition? productDef, List<string> properties, float exceedQualityBonusMult)
         {
             // Check if productDef is null or not a ProductDefinition
             if (productDef == null)
             {
-                MelonLogger.Error("❌ Product definition is null or not a ProductDefinition. Reward calculation skipped.");
+                DebugLogger.LogError("❌ Product definition is null or not a ProductDefinition. Reward calculation skipped.");
                 return;
             }
             var qualityMult = Data.QualityMult;
@@ -472,8 +485,8 @@ namespace Empire.Quest
                     EffectsSum += Data.OptionalEffectMult[i];
                 }
             }
-            Data.Reward += (int)(total * productDef.MarketValue * (1 + qualityMult) * Data.DealTimeMult * (1 + EffectsSum));
-            MelonLogger.Msg($"   Reward updated: {Data.Reward} with Price: {productDef.MarketValue}, Quality: {qualityMult} and EffectsSum: {EffectsSum} and DealTimeMult: {Data.DealTimeMult}.");
+            Data.Reward += (int)(total * productDef.MarketValue * (1 + qualityMult) * Data.DealTimeMult * (1 + EffectsSum) * (1 + exceedQualityBonusMult));
+            DebugLogger.Log($"   Reward updated: amountProvided: {total}, total reward: {Data.Reward} - Price: {productDef.MarketValue}, Quality: {qualityMult} and EffectsSum: {EffectsSum}, DealTimeMult: {Data.DealTimeMult}, exceedQualityBonusMult: {exceedQualityBonusMult}.");
         }
 
 
@@ -497,13 +510,13 @@ namespace Empire.Quest
             // Detach storage event
             if (subscribedStorage != null)
             {
-                MelonLogger.Msg($"Unsubscribing CheckDelivery for quest {Data.DealerName} on storage {deliveryDrop?.GUID}");
+                DebugLogger.Log($"Unsubscribing CheckDelivery for quest {Data.DealerName} on storage {deliveryDrop?.GUID}");
                 subscribedStorage.OnClosed -= CheckDelivery;
                 subscribedStorage = null;
             }
             else if (deliveryDrop?.Storage != null)
             {
-                MelonLogger.Msg($"Unsubscribing CheckDelivery for quest {Data.DealerName} on storage {deliveryDrop.GUID}");
+                DebugLogger.Log($"Unsubscribing CheckDelivery for quest {Data.DealerName} on storage {deliveryDrop.GUID}");
                 deliveryDrop.Storage.OnClosed -= CheckDelivery;
             }
 
@@ -555,7 +568,7 @@ namespace Empire.Quest
                 //if buyer.DebtManager does not exist, log and skip debt payment
                 if (buyer.DebtManager == null)
                 {
-
+                    DebugLogger.Log($"Giving total reward: ${Data.Reward}");
                     Money.ChangeCashBalance(Data.Reward);
                   
                 }
@@ -568,7 +581,7 @@ namespace Empire.Quest
                         var temp1 = Data.Reward - (int)(buyer.DealerSaveData.DebtRemaining / buyer.Debt.ProductBonus);
                         var temp2 = buyer.DealerSaveData.DebtRemaining;
                         buyer.DealerSaveData.DebtRemaining = 0;
-                        MelonLogger.Msg($"   Paid off debt to {buyer.DisplayName}");
+                        DebugLogger.Log($"   Paid off debt to {buyer.DisplayName}");
                         Money.ChangeCashBalance(temp1);
                         if (buyer.DebtManager != null)
                         {
@@ -577,7 +590,7 @@ namespace Empire.Quest
                     }
                     else
                     {
-                        MelonLogger.Msg($"   Paid off debt: ${Data.Reward} to {buyer.DisplayName}");
+                        DebugLogger.Log($"   Paid off debt: ${Data.Reward} to {buyer.DisplayName}");
                         buyer.DealerSaveData.DebtRemaining -= buyer.Debt.ProductBonus * Data.Reward;
                         buyer.DealerSaveData.DebtPaidThisWeek += buyer.Debt.ProductBonus * Data.Reward;
                         if (buyer.DebtManager != null)
@@ -593,17 +606,18 @@ namespace Empire.Quest
                 }
                 else
                 {
-                    Money.ChangeCashBalance(Data.Reward);
+					DebugLogger.Log($"Giving total reward: ${Data.Reward}");
+					Money.ChangeCashBalance(Data.Reward);
                 }
 
             }
             else
             {
-                MelonLogger.Error($"❌ Unknown source: {source}.");
+                DebugLogger.LogError($"❌ Unknown source: {source}.");
                 return;
             }
 
-            MelonLogger.Msg($"   Rewarded : ${Data.Reward} and Rep {Data.RepReward} and Xp (if completed) {Data.XpReward} from {Data.DealerName}");
+            DebugLogger.Log($"   Rewarded : ${Data.Reward} and Rep {Data.RepReward} and Xp (if completed) {Data.XpReward} from {Data.DealerName}");
 
             EmpirePhoneApp.Instance.OnQuestComplete();
             rewardEntry?.Complete();

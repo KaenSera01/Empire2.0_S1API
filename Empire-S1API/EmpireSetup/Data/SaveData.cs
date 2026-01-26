@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
-namespace Empire.GeneralSetup.Data
+namespace Empire.EmpireSetup.Data
 {
     public class GlobalSaveData
     {

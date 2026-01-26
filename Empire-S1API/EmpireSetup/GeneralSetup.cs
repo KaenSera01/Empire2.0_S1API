@@ -1,31 +1,33 @@
+using Empire.Debug;
+using Empire.PhoneCalls;
+using MelonLoader;
+using MelonLoader.Utils;
+using Newtonsoft.Json;
+using S1API.Entities;
+using S1API.Entities.NPCs;
+using S1API.Law;
+using S1API.Logging;
+using S1API.PhoneCalls;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MelonLoader;
-using MelonLoader.Utils;
-using Newtonsoft.Json;
-using S1API.Logging;
-using S1API.Entities.NPCs;
-using S1API.PhoneCalls;
-using Empire.PhoneCalls;
-using S1API.Entities;
 
-namespace Empire.GeneralSetup
+namespace Empire.EmpireSetup
 {
     public static class GeneralSetup
     {
-        public static EmpireSaveData EmpireSaveData { get; set; } 
+        public static EmpireSaveData EmpSaveData { get; set; }
         // Basic intro to mod and debt mechanics
         public static void UncCalls()
         {
-            MelonLogger.Msg("Unc Calls Method Triggered.");
-            //Log if intro has been done
-            MelonLogger.Msg($"Unc Calls: {EmpireSaveData.SaveData.UncNelsonCartelIntroDone}");
-            if (!EmpireSaveData.SaveData.UncNelsonCartelIntroDone)
+			//DebugLogger.Log("Unc Calls Method Triggered.");
+			//Log if intro has been done
+			DebugLogger.Log($"Unc Calls: {EmpSaveData.SaveData.UncNelsonCartelIntroDone}");
+            if (!EmpSaveData.SaveData.UncNelsonCartelIntroDone)
             {
-                EmpireSaveData.SaveData.UncNelsonCartelIntroDone = true;
-                
+                EmpSaveData.SaveData.UncNelsonCartelIntroDone = true;
+
                 // Queue the intro as a phone call with staged dialogue
                 var caller = S1API.Entities.NPC.Get<UncleNelson>() as UncleNelson;
 
@@ -38,14 +40,18 @@ namespace Empire.GeneralSetup
         }
         public static void ResetPlayerStats()
         {
-            MelonLogger.Msg("Resetting Player Stats.");
+            DebugLogger.Log("Resetting Player Stats.");
             S1API.Console.ConsoleHelper.SetPlayerJumpMultiplier(1f);
             S1API.Console.ConsoleHelper.SetPlayerMoveSpeedMultiplier(1f);
             S1API.Console.ConsoleHelper.SetPlayerHealth(100f);
             S1API.Console.ConsoleHelper.SetPlayerEnergyLevel(100f);
             //S1API.Console.ConsoleHelper.SetLawIntensity(1f);
-            MelonLogger.Msg("Player Stats Reset.");
+            DebugLogger.Log("Player Stats Reset.");
+        }
+
+        public static void Reset()  //  call only on scene unload
+		{
+            EmpSaveData = new EmpireSaveData();
         }
     }
-
 }

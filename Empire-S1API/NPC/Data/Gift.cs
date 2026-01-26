@@ -1,6 +1,3 @@
-using Newtonsoft.Json;
-
-
 namespace Empire.NPC.Data
 {
     public class Gift

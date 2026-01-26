@@ -27,8 +27,8 @@ namespace Empire.NPC.S1API_NPCs
 		public override List<List<float>> Deals { get; protected set; } =
 			new List<List<float>>
 			{
-				new List<float> { 1f, 0.85f, 941f, 8f },
-				new List<float> { 2f, 0.7f, 1112f, 12f }
+				new List<float> { 1f, 1.2f, 941f, 8f },
+				new List<float> { 2f, 1.0f, 1112f, 12f }
 			};
 
 		public override int RefreshCost { get; protected set; } = 200;
@@ -51,7 +51,7 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "weed",
 					UnlockRep = 0,
-					BaseDollar = 10,
+					BaseDollar = 13,
 					BaseRep = 9,
 					BaseXp = 6,
 					RepMult = 0.001f,
@@ -73,7 +73,7 @@ namespace Empire.NPC.S1API_NPCs
 				{
 					Type = "shrooms",
 					UnlockRep = 110,
-					BaseDollar = 14,
+					BaseDollar = 25,
 					BaseRep = 14,
 					BaseXp = 9,
 					RepMult = 0.001f,
@@ -101,7 +101,7 @@ namespace Empire.NPC.S1API_NPCs
 					Name = "BMX Brigade",
 					Cost = 0,
 					UnlockRep = 0,
-					MinAmount = 1,
+					MinAmount = 3,
 					StepAmount = 1,
 					MaxAmount = 10,
 					DealModifier = new List<float> { 1f, 1f, 1f, 1f }	

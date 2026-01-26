@@ -19,6 +19,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 using Empire.Utilities.DealDayHelpers;
+using Empire.Debug;
 
 namespace Empire.Phone
 {
@@ -81,12 +82,12 @@ namespace Empire.Phone
         {
             if (QuestDelivery.QuestActive && QuestDelivery.Active != null)
             {
-                MelonLogger.Msg("[EmpireApp] Resetting active quest state.");
+                DebugLogger.Log("[EmpireApp] Resetting active quest state.");
                 QuestDelivery.Active.Cleanup();
             }     
             if (Instance.q != null)
             {
-                MelonLogger.Msg("[EmpireApp] Resetting EmpirePhoneApp instance.");
+                DebugLogger.Log("[EmpireApp] Resetting EmpirePhoneApp instance.");
                 Instance.q = null;
             }
         }
@@ -106,13 +107,13 @@ namespace Empire.Phone
         protected override void OnCreated()
         {
             base.OnCreated();
-            MelonLogger.Msg("[EmpirePhoneApp] OnCreated called");
+            DebugLogger.Log("[EmpirePhoneApp] OnCreated called");
             Instance = this;
             Reset();
             TimeManager.OnDayPass -= LoadQuests;
             TimeManager.OnDayPass += LoadQuests;
 
-            MelonLogger.Msg("✅ TimeManager.OnDayPass event subscribed");
+            DebugLogger.Log("✅ TimeManager.OnDayPass event subscribed");
         }
 
 		public static void DetermineDealDaysStatic()
@@ -127,22 +128,24 @@ namespace Empire.Phone
 
 		public void DetermineDealDays(EmpireNPC buyer)
         {
-            if (EmpireMod.RandomizeDealDays.Value == true)
+            bool buyerHasNoDefaultDays = (buyer.DefaultDealDays == null || buyer.DefaultDealDays.Count == 0);
+
+			if (EmpireMod.RandomizeDealDays.Value == true || buyerHasNoDefaultDays)
             {
-                MelonLogger.Msg($"[EmpirePhoneApp] Determining deal days for buyer {buyer.DisplayName}.");
+                DebugLogger.Log($"[EmpirePhoneApp] Determining deal days for buyer {buyer.DisplayName}.");
                 int minDays = GetConfiguredMinDealDays(buyer.Tier);
                 int maxDays = minDays + 2;
 				int randomDays = UnityEngine.Random.Range(minDays, maxDays + 1);    //  +1 to make sure you can get maxDays in the result
 				int numDaysToAssign = Math.Clamp(randomDays, 1, 7);
 
 				buyer.ActiveDealDays = DealDayUtility.GetRandomDays(numDaysToAssign);
-				MelonLogger.Msg($"[EmpirePhoneApp] Buyer {buyer.DisplayName} (Tier {buyer.Tier}) assigned {numDaysToAssign} deal days: {string.Join(", ", buyer.ActiveDealDays)}");
+				DebugLogger.Log($"[EmpirePhoneApp] Buyer {buyer.DisplayName} (Tier {buyer.Tier}) assigned {numDaysToAssign} deal days: {string.Join(", ", buyer.ActiveDealDays)}");
 			}
             else
             {
-                MelonLogger.Msg($"[EmpirePhoneApp] Using default deal days for buyer {buyer.DisplayName}.");
+                DebugLogger.Log($"[EmpirePhoneApp] Using default deal days for buyer {buyer.DisplayName}.");
                 buyer.ActiveDealDays = new List<string>(buyer.DefaultDealDays);
-                MelonLogger.Msg($"[EmpirePhoneApp] Buyer {buyer.DisplayName} (Tier {buyer.Tier}) assigned default deal days: {string.Join(", ", buyer.ActiveDealDays)}");
+                DebugLogger.Log($"[EmpirePhoneApp] Buyer {buyer.DisplayName} (Tier {buyer.Tier}) assigned default deal days: {string.Join(", ", buyer.ActiveDealDays)}");
 			}
         }
 
@@ -150,7 +153,7 @@ namespace Empire.Phone
         {
             if (TimeManager.CurrentDay != 0)
             {
-                MelonLogger.Msg("[EmpirePhoneApp] Skipping deal day determination - not Monday.");
+                DebugLogger.Log("[EmpirePhoneApp] Skipping deal day determination - not Monday.");
                 return;
             }
 
@@ -171,7 +174,7 @@ namespace Empire.Phone
 				return entry.Value;
 
 			// Unknown tiers default to 1 day
-            MelonLogger.Msg($"[EmpirePhoneApp] Unknown buyer tier {buyerTier} - defaulting to 1 min deal day.");
+            DebugLogger.Log($"[EmpirePhoneApp] Unknown buyer tier {buyerTier} - defaulting to 1 min deal day.");
 			return 1;
 		}
 
@@ -292,7 +295,7 @@ namespace Empire.Phone
             refreshRect.sizeDelta = new Vector2(50, 25);
     //        if (Contacts.Buyers == null || Contacts.Buyers.Count == 0)
     //        {
-				//MelonLogger.Msg(
+				//DebugLogger.Log(
 	   //             $"[EmpirePhoneApp] Initializing dealers on UI creation because Contacts.Buyers is " +
 	   //             $"{(Contacts.Buyers == null ? "null" : Contacts.Buyers.Count == 0 ? "empty" : "populated")}"
     //            );
@@ -438,7 +441,7 @@ namespace Empire.Phone
         {
             if (managementDetailPanel == null)
             {
-                MelonLogger.Warning("[EmpirePhoneApp] UpdateBuyerDetails called but managementDetailPanel is null.");
+                DebugLogger.LogWarning("[EmpirePhoneApp] UpdateBuyerDetails called but managementDetailPanel is null.");
                 return;
             }
 
@@ -803,14 +806,14 @@ namespace Empire.Phone
         }
         private System.Collections.IEnumerator WaitForBuyerAndInitialize()
         {
-            MelonLogger.Msg("PhoneApp-WaitForBuyerAndInitialize-Waiting for Contacts to be initialized...");
+            DebugLogger.Log("PhoneApp-WaitForBuyerAndInitialize-Waiting for Contacts to be initialized...");
             
             // First wait for all NPCs to be registered
             while (!Contacts.IsInitialized)
             {
                 yield return null;
             }
-            MelonLogger.Msg("PhoneApp: Contacts.IsInitialized is true, now waiting for full processing...");
+            DebugLogger.Log("PhoneApp: Contacts.IsInitialized is true, now waiting for full processing...");
 
             // CRITICAL: Wait for UpdateCoroutine to complete processing (unlocks, intros, UnlockDrug calls)
             // This prevents the race condition where LoadQuests runs before UnlockedDrugs is populated
@@ -819,7 +822,7 @@ namespace Empire.Phone
                 yield return null;
             }
 
-            MelonLogger.Msg("Dealers and Buyers initialized successfully.");
+            DebugLogger.Log("Dealers and Buyers initialized successfully.");
             LoadQuests();
         }
 
@@ -829,7 +832,7 @@ namespace Empire.Phone
             foreach (var buyer in Contacts.Buyers.Values)
             {
                 string currentDay = TimeManager.CurrentDay.ToString();
-                MelonLogger.Msg($"RefreshButton(): Current Day: {currentDay}.");
+                DebugLogger.Log($"RefreshButton(): Current Day: {currentDay}.");
                 if (buyer.ActiveDealDays != null && buyer.ActiveDealDays.Contains(currentDay) && buyer.IsUnlocked)
                 {
                     refreshCost += buyer.RefreshCost;
@@ -841,57 +844,59 @@ namespace Empire.Phone
                 return;
             }
             LoadQuests();
-            ConsoleHelper.RunCashCommand(-refreshCost);
+
+            if (!EmpireMod.NoRefreshCost.Value)
+                ConsoleHelper.RunCashCommand(-refreshCost);            
         }
 
         public static void ClearChildren(Transform parent)
         {
             if (parent == null) return;
 
-            UIFactory.ClearChildren(parent);    //  use S1API function
-			//for (int i = parent.childCount - 1; i >= 0; i--)
-			//{
-			//    Object.Destroy(parent.GetChild(i).gameObject);
-			//}
-		}
+            //UIFactory.ClearChildren(parent);    //  use S1API function
+            for (int i = parent.childCount - 1; i >= 0; i--)
+            {
+                Object.Destroy(parent.GetChild(i).gameObject);
+            }
+        }
         private void LoadQuests()
         {
             quests = new List<QuestData>();
             foreach (var buyer in Contacts.Buyers.Values)
             {
                 string currentDay = TimeManager.CurrentDay.ToString();
-                MelonLogger.Msg($"Checking dealer {buyer.DisplayName} for quests on day {currentDay}.");
+                DebugLogger.Log($"Checking dealer {buyer.DisplayName} for quests on day {currentDay}.");
 				
                 // Skip buyers that aren't unlocked yet (unlock requirements not met)
                 if (!buyer.IsUnlocked)
                 {
-                    //MelonLogger.Msg($"Skipping dealer {buyer.DisplayName}: Not unlocked yet (unlock requirements not met).");
+                    //DebugLogger.Log($"Skipping dealer {buyer.DisplayName}: Not unlocked yet (unlock requirements not met).");
                     continue;
                 }
                 
 				if (buyer.ActiveDealDays == null || !buyer.ActiveDealDays.Contains(currentDay) || !buyer.IsInitialized)
                 {
-                    //MelonLogger.Msg($"Skipping dealer {buyer.DisplayName}: DefaultDealDays not set or does not include {currentDay}, or dealer not initialized: IsInitialized -> {buyer.IsInitialized}.");
+                    //DebugLogger.Log($"Skipping dealer {buyer.DisplayName}: DefaultDealDays not set or does not include {currentDay}, or dealer not initialized: IsInitialized -> {buyer.IsInitialized}.");
 					continue;
                 }
 
                 var dealerSaveData = buyer.DealerSaveData;
-                MelonLogger.Msg($"Dealer {buyer.DisplayName} - ShippingTier: {dealerSaveData.ShippingTier}.");
+                DebugLogger.Log($"Dealer {buyer.DisplayName} - ShippingTier: {dealerSaveData.ShippingTier}.");
 				if (dealerSaveData.ShippingTier < 0 || dealerSaveData.ShippingTier >= buyer.Shippings.Count)
                 {
-                    MelonLogger.Error($"[EmpirePhoneApp] Invalid ShippingTier {dealerSaveData.ShippingTier} for dealer {buyer.DisplayName}. Shippings.Count={buyer.Shippings.Count}");
+                    DebugLogger.LogError($"[EmpirePhoneApp] Invalid ShippingTier {dealerSaveData.ShippingTier} for dealer {buyer.DisplayName}. Shippings.Count={buyer.Shippings.Count}");
                     continue;
                 }
 
                 var drugTypes = dealerSaveData.UnlockedDrugs.Select(d => d.Type).Distinct().OrderBy(_ => UnityEngine.Random.value).ToArray();
-                MelonLogger.Msg($"Dealer {buyer.DisplayName} has unlocked drugs: {string.Join(", ", drugTypes)}.");
+                DebugLogger.Log($"Dealer {buyer.DisplayName} has unlocked drugs: {string.Join(", ", drugTypes)}.");
 				if (drugTypes.Any())
                 {
-                    MelonLogger.Msg($"Generating quest for dealer {buyer.DisplayName} with drug {drugTypes.First()}. drugTypes.Any(): {drugTypes.Any()}");
+                    DebugLogger.Log($"Generating quest for dealer {buyer.DisplayName} with drug {drugTypes.First()}. drugTypes.Any(): {drugTypes.Any()}");
 					GenerateQuest(buyer, drugTypes.First());
                 }
             }
-            MelonLogger.Msg($"✅ Total quests loaded: {quests.Count}");
+            DebugLogger.Log($"✅ Total quests loaded: {quests.Count}");
             RefreshQuestList();
         }
 
@@ -912,13 +917,13 @@ namespace Empire.Phone
 
             if (unlockedDrug == null)
             {
-                MelonLogger.Msg($"Unlocked drug '{drugType}' not found for dealer '{buyer.DisplayName}'.");
+                DebugLogger.Log($"Unlocked drug '{drugType}' not found for dealer '{buyer.DisplayName}'.");
                 return;
             }
 
 			if (unlockedDrug.Qualities.Count == 0)
 			{
-				MelonLogger.Error(
+				DebugLogger.LogError(
 					$"[GenerateQuest] No qualities unlocked for '{unlockedDrug.Type}' on dealer '{buyer.DisplayName}'.");
 				return;
 			}
@@ -1048,7 +1053,7 @@ namespace Empire.Phone
             }
             catch (Exception ex)
             {
-                MelonLogger.Error($"❌ CancelCurrentQuest() exception: {ex}");
+                DebugLogger.LogError($"❌ CancelCurrentQuest() exception: {ex}");
             }
         }
 
@@ -1064,7 +1069,7 @@ namespace Empire.Phone
                 quest.Index = row.transform.GetSiblingIndex();
 
                 var image = EmpireResourceLoader.LoadEmbeddedIcon(quest.QuestImage ?? "EmpireIcon_quest.png");
-				//var image = ImageUtils.LoadImage(quest.QuestImage != null ? Path.Combine(MelonEnvironment.ModsDirectory, "Empire", quest.QuestImage) : Path.Combine(MelonEnvironment.ModsDirectory, "Empire", "EmpireIcon_quest.png"));
+				
                 UIFactory.SetIcon(image, iconPanel.transform);
                 var questIcon = iconPanel.transform.GetComponentInChildren<Image>();
                 if (questIcon != null) questIcon.GetComponent<RectTransform>().sizeDelta = new Vector2(128, 128);
@@ -1195,7 +1200,7 @@ namespace Empire.Phone
             }
             else
             {
-                MelonLogger.Error("❌ Failed to create QuestDelivery instance - Accept Quest.");
+                DebugLogger.LogError("❌ Failed to create QuestDelivery instance - Accept Quest.");
                 return;
             }
 
